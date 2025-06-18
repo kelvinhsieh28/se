@@ -187,6 +187,8 @@ app.post("/generate-wedding", async (req, res) => {
 app.post("/api/rsvp", (req, res) => {
   const { name, attendance, guests, contact, notes } = req.body;
 
+  console.log("📥 收到 RSVP:", req.body); // ✅ 加上這一行幫助 debug
+
   if (!name || !attendance) {
     return res.status(400).json({ success: false, message: "缺少必要欄位" });
   }
