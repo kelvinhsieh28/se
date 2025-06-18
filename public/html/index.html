@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>喜帖系統主頁</title>
+  <link rel="stylesheet" href="../css/index.css" />
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-logo">
+    <img src="../pic/logo.png" alt="喜帖範例圖" width="55" />
+  </div>
+  <ul class="nav-links" id="nav-links">
+  </ul>
+</nav>
+
+<marquee direction="left" height="30" scrollamount="20" class="run">新開幕!促銷活動要買要快</marquee>
+
+<div class="main-content">
+  <div class="slideshow-container">
+    <div class="singleSlide"><img src="../pic/index01.png" alt="範例1" /></div>
+    <div class="singleSlide"><img src="../pic/index02.png" alt="範例2" /></div>
+    <div class="singleSlide"><img src="../pic/index03.png" alt="範例3" /></div>
+    <a class="prev" onclick="plusSlides(-1)">❮</a>
+    <a class="next" onclick="plusSlides(1)">❯</a>
+  </div>
+
+  <div class="dashboard-wrapper">
+    <div class="dashboard-container">
+      <h1>製作你的客製化喜帖</h1>
+      <div class="nav-section">
+        <a href="#" class="nav-button" onclick="goToGuest()">進入</a>
+      </div>
+      <h2>敲響幸福的鐘聲</h2>
+    </div>
+
+    <div class="dashboard-container">
+      <h1>場館預訂</h1>
+      <div class="nav-section">
+        <a href="#" class="nav-button" onclick="goToVenue()">選擇場館</a>
+      </div>
+      <h2>選擇理想的婚宴會館</h2>
+    </div>
+
+    <div class="dashboard-container">
+      <h1>婚禮流程</h1>
+      <div class="nav-section">
+        <a href="#" class="nav-button" onclick="goToProgram()">開始製作</a>
+      </div>
+      <h2>製作獨一無二的婚禮流程</h2>
+    </div>
+  </div>
+</div>
+
+<script>
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const userEmail = localStorage.getItem("userEmail") || "";
+  const navLinks = document.getElementById("nav-links");
+
+  // 顯示歡迎語（如果有登入）
+  if (isLoggedIn && userEmail) {
+    const welcomeLi = document.createElement("li");
+    welcomeLi.innerText = `歡迎：${userEmail}`;
+    navLinks.appendChild(welcomeLi);
+  }
+
+  // 登入 / 登出按鈕
+  const li = document.createElement("li");
+  const a = document.createElement("a");
+
+  if (isLoggedIn) {
+    a.href = "#";
+    a.innerText = "登出";
+    a.onclick = function () {
+      localStorage.setItem("isLoggedIn", "false");
+      localStorage.removeItem("userEmail");
+      alert("您已成功登出！");
+      window.location.href = "index.html";
+    };
+  } else {
+    a.href = "login.html";
+    a.innerText = "登入";
+  }
+
+  li.appendChild(a);
+  navLinks.appendChild(li);
+
+  function goToGuest() {
+    if (isLoggedIn) {
+      window.location.href = "guest.html";
+    } else {
+      alert("請先登入才能進入客製化喜帖！");
+      window.location.href = "login.html?redirect=guest.html";
+    }
+  }
+
+  function goToVenue() {
+    if (isLoggedIn) {
+      window.location.href = "venue.html";
+    } else {
+      alert("請先登入才能預訂場館！");
+      window.location.href = "login.html?redirect=venue.html";
+    }
+  }
+
+  function goToProgram() {
+    if (isLoggedIn) {
+      window.location.href = "program_generator.html";
+    } else {
+      alert("請先登入才能設計婚禮流程！");
+      window.location.href = "login.html?redirect=program_generator.html";
+    }
+  }
+
+  // 輪播圖功能
+  let slideIndex = 1;
+
+  function showSlides(n) {
+    const slides = document.getElementsByClassName("singleSlide");
+    if (n > slides.length) slideIndex = 1;
+    if (n < 1) slideIndex = slides.length;
+
+    for (let i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none";
+    }
+    slides[slideIndex - 1].style.display = "flex";
+  }
+
+  function plusSlides(n) {
+    showSlides(slideIndex += n);
+  }
+
+  showSlides(slideIndex);
+  setInterval(() => { plusSlides(1); }, 5000);
+</script>
+</body>
+</html>

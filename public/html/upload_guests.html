@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>賓客名單上傳與預覽</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 2em; }
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 0.5em; }
+    table { margin-top: 1em; width: 100%; }
+    .btn { margin-top: 1em; padding: 0.5em 1em; }
+  </style>
+</head>
+<body>
+  <h1>📩 批次上傳賓客名單</h1>
+
+  <input type="file" id="csvFile" accept=".csv" />
+  <button class="btn" onclick="previewCSV()">預覽名單</button>
+
+  <div id="previewContainer"></div>
+  <button class="btn" onclick="sendInvitations()">產生喜帖並寄送</button>
+
+  <script>
+    let guestData = [];
+
+    function previewCSV() {
+      const file = document.getElementById('csvFile').files[0];
+      if (!file) return alert("請先選擇CSV檔");
+
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function (results) {
+          guestData = results.data;
+          let tableHTML = `<table><thead><tr>${Object.keys(guestData[0]).map(k => `<th>${k}</th>`).join('')}</tr></thead><tbody>`;
+          guestData.forEach(row => {
+            tableHTML += `<tr>${Object.values(row).map(v => `<td>${v}</td>`).join('')}</tr>`;
+          });
+          tableHTML += `</tbody></table>`;
+          document.getElementById('previewContainer').innerHTML = tableHTML;
+        }
+      });
+    }
+
+    async function sendInvitations() {
+      if (guestData.length === 0) return alert("請先上傳並預覽資料");
+
+      try {
+        const res = await fetch("http://localhost:3001/generate-wedding-batch", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ guests: guestData })
+        });
+
+        const data = await res.json();
+        alert("✅ 已成功產生與寄出喜帖！");
+        console.log(data);
+      } catch (error) {
+        console.error("❌ 錯誤詳情：", JSON.stringify(error, null, 2));
+        res.status(500).json({ error: "發送失敗，請查看伺服器錯誤訊息。" });
+        }       
+
+    }
+  </script>
+</body>
+</html>

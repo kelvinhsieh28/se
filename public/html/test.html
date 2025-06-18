@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI 喜帖產生器</title>
+  <style>
+    body {
+      font-family: "Microsoft JhengHei", sans-serif;
+      background: #fffafc;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    label, input, select, textarea, button {
+      display: block;
+      width: 100%;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    textarea {
+      height: 150px;
+    }
+    #result {
+      background: #fff0f5;
+      border: 1px dashed #ff6b9e;
+      padding: 1rem;
+      min-height: 100px;
+      white-space: pre-wrap;
+    }
+    button {
+      background: #ff6b9e;
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>AI 喜帖產生器</h2>
+
+  <label>新郎姓名</label>
+  <input type="text" id="groom" placeholder="例如：小明" />
+
+  <label>新娘姓名</label>
+  <input type="text" id="bride" placeholder="例如：小美" />
+
+  <label>婚禮日期</label>
+  <input type="date" id="date" />
+
+  <label>婚禮地點</label>
+  <input type="text" id="place" placeholder="例如：晶華酒店" />
+
+  <label>風格語氣</label>
+  <select id="tone">
+    <option value="典雅感性">典雅感性</option>
+    <option value="可愛溫馨">可愛溫馨</option>
+    <option value="幽默輕鬆">幽默輕鬆</option>
+  </select>
+
+  <button onclick="generateInvite()">產生喜帖內容</button>
+
+  <h3>喜帖內容</h3>
+  <div id="result">(這裡會顯示產生的內容)</div>
+
+  <script>
+    async function generateInvite() {
+      const groom = document.getElementById("groom").value;
+      const bride = document.getElementById("bride").value;
+      const date = document.getElementById("date").value;
+      const place = document.getElementById("place").value;
+      const tone = document.getElementById("tone").value;
+
+      const res = await fetch("http://localhost:3001/generate-wedding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ groom, bride, date, place, tone })
+      });
+
+      const data = await res.json();
+      document.getElementById("result").innerText = data.reply || "⚠️ 發生錯誤，請稍後再試。";
+    }
+  </script>
+</body>
+</html>

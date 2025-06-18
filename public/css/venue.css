@@ -1,0 +1,165 @@
+.venue-filter {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.venue-filter select {
+  padding: 0.5rem 1rem;
+  margin: 0 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.venue-container {
+  margin-top: 100px;
+  text-align: center;
+  padding: 2rem;
+}
+
+.venue-container h1 {
+  color: #ff6b81;
+  margin-bottom: 2rem;
+}
+
+.venue-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  justify-items: center;
+  padding: 2rem;
+}
+
+
+.venue-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 1rem;
+  width: 280px;
+  text-align: center;
+}
+
+.venue-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.venue-card h2 {
+  margin: 1rem 0 0.5rem;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.venue-card p {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.btn {
+  margin-top: 0.8rem;
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  background-color: #ff6b81;
+  color: white;
+  text-decoration: none;
+  border-radius: 30px;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #ff4757;
+}
+
+.reservation {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.reserve-datetime {
+  margin-top: 0.3rem;
+  padding: 0.4rem;
+  width: 15%;
+  box-sizing: border-box;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.reservation button {
+  margin-top: 0.5rem;
+  background-color: #ff6b81;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.reservation button:hover {
+  background-color: #ff4757;
+}
+
+.weather-output {
+  margin-top: 0.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 彈窗背景遮罩 */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+}
+
+/* 彈窗內容區塊 */
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 8px;
+}
+
+/* 關閉按鈕 */
+.modal .close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.modal .close:hover,
+.modal .close:focus {
+  color: black;
+}
+
+.reserve-now {
+  margin-top: 1rem;
+  padding: 0.6rem 1.4rem;
+  background-color: #ff6b81;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.reserve-now:hover {
+  background-color: #ff4757;
+}

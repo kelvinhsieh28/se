@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>婚宴會館總覽</title>
+  <link rel="stylesheet" href="../css/index.css" />
+  <link rel="stylesheet" href="../css/venue.css" />
+  <style>
+
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo"><img src="../pic/logo.png" alt="喜帖範例圖" width="55" /></div>
+    <ul class="nav-links">
+      <li><a href="index.html">主頁</a></li>
+      <li><a href="guest.html">收件人管理</a></li>
+      <li><a href="style.html">喜帖設計</a></li>
+      <li><a href="send.html">發送設定</a></li>
+      <li><a href="record.html">寄送紀錄</a></li>
+      <li><a href="program_generator.html">婚禮節目表</a></li> 
+      <li><a href="venue.html" class="active">婚宴會館</a></li>
+      
+    </ul>
+  </nav>
+
+  <div class="venue-container">
+    <h1>全台婚宴會館精選</h1>
+    <div class="venue-filter">
+        <label for="cityFilter">選擇地區：</label>
+        <select id="cityFilter" onchange="filterVenues()">
+          <option value="all">全部</option>
+          <option value="Taipei">台北</option>
+          <option value="Taoyuan">桃園</option>
+        </select>
+        <label for="typeFilter">選擇類型：</label>
+        <select id="typeFilter" onchange="filterVenues()">
+          <option value="all">全部</option>
+          <option value="inside">室內</option>
+          <option value="outside">戶外</option>
+        </select>
+        <div class="reservation">
+          <label>預約日期與時間：</label>
+          <input type="datetime-local" class="reserve-datetime" />
+          <button onclick="checkWeather(this)">查詢</button>
+          <div class="weather-output"></div>
+        </div>
+
+    </div>
+  </div>
+
+  <div class="venue-grid">
+    <div class="venue-card" data-city="Taipei" data-type="inside">
+      <img src="../pic/4.png" alt="晶宴民權館" />
+      <h2>晶宴民權館</h2>
+      <p>台北市中山區民權東路三段2號</p>
+      <button class="btn" onclick="openVenueDetail(1)">查看詳情</button>
+    </div>
+    <div class="venue-card" data-city="Taipei" data-type="inside">
+      <img src="../pic/6.png" alt="典華旗艦館" />
+      <h2>典華旗艦館</h2>
+      <p>台北市內湖區民權東路六段99號</p>
+      <button class="btn" onclick="openVenueDetail(2)">查看詳情</button>
+    </div>
+    <div class="venue-card" data-city="Taipei" data-type="inside">
+      <img src="../pic/3.png" alt="國賓大飯店" />
+      <h2>國賓大飯店</h2>
+      <p>台北市中正區中山南路2號</p>
+      <button class="btn" onclick="openVenueDetail(3)">查看詳情</button>
+    </div>
+    <div class="venue-card" data-city="Taoyuan" data-type="outside">
+      <img src="../pic/2.png" alt="皇家威廷" />
+      <h2>皇家威廷</h2>
+      <p>桃園市大溪區仁愛路1號</p>
+      <button class="btn" onclick="openVenueDetail(4)">查看詳情</button>
+    </div>
+    <div class="venue-card" data-city="Taoyuan" data-type="outside">
+      <img src="../pic/5.png" alt="福容大飯店桃園館" />
+      <h2>福容大飯店桃園館</h2>
+      <p>桃園市桃園區大興西路1段200號</p>
+      <button class="btn" onclick="openVenueDetail(5)">查看詳情</button>
+    </div>
+    <div class="venue-card" data-city="Taoyuan" data-type="outside">
+      <img src="../pic/1.png" alt="東方文華會館" />
+      <h2>東方文華會館</h2>
+      <p>桃園市中壢區中正路333號</p>
+      <button class="btn" onclick="openVenueDetail(6)">查看詳情</button>
+    </div>
+  </div>
+
+  <div id="venueModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div id="modal-body">載入中...</div>
+    </div>
+  </div>
+
+<script>
+async function openVenueDetail(venueId) {
+  try {
+    const res = await fetch(`/api/venue/${venueId}`);
+    const data = await res.json();
+
+    if (!data.success) {
+      alert("查無此場館資訊");
+      return;
+    }
+
+    const venue = data.venue;
+
+    const modalContent = `
+      <h2>${venue.name}</h2>
+      <img src="${venue.image}" alt="${venue.name}" style="width: 100%; height: auto; margin-top: 1rem;" />
+      <p style="margin-top: 1rem;"><strong>地址：</strong>${venue.address}</p>
+      <p>${venue.description}</p>
+      <p>${venue.price}</p>
+      <button class="reserve-now" onclick="alert('預約成功！我們將與您聯絡。')">立即預約</button>
+    `;
+
+    // 替換 modal 內容
+    document.getElementById("modal-body").innerHTML = modalContent;
+
+    // 顯示 modal（保留原本樣式）
+    document.getElementById("venueModal").style.display = "block";
+  } catch (error) {
+    console.error("載入場館錯誤：", error);
+    alert("載入場館資料失敗！");
+  }
+}
+
+
+function closeModal() {
+  document.getElementById("venueModal").style.display = "none";
+}
+
+  function filterVenues() {
+    const selectedCity = document.getElementById("cityFilter").value;
+    const selectedType = document.getElementById("typeFilter").value;
+    const cards = document.querySelectorAll(".venue-card");
+    cards.forEach(card => {
+      const city = card.getAttribute("data-city");
+      const type = card.getAttribute("data-type");
+      const matchCity = (selectedCity === "all" || city === selectedCity);
+      const matchType = (selectedType === "all" || type === selectedType);
+      card.style.display = (matchCity && matchType) ? "block" : "none";
+    });
+  }
+
+// 🔁 限制預約時間為未來 5 天內
+  const dateInput = document.querySelector(".reserve-datetime");
+  const now = new Date();
+  const fiveDaysLater = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000);
+  dateInput.min = now.toISOString().slice(0, 16);
+  dateInput.max = fiveDaysLater.toISOString().slice(0, 16);
+
+  // ✅ 查詢天氣
+function checkWeather(button) {
+  const container = button.closest(".reservation");
+  const datetime = container.querySelector(".reserve-datetime").value;
+  const city = document.getElementById("cityFilter").value;
+  const output = container.querySelector(".weather-output");
+
+  if (!datetime) {
+    output.innerText = "⚠️ 請先選擇日期與時間";
+    return;
+  }
+
+  const date = datetime.split("T")[0];
+
+  fetch("/api/weather", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ city, date }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        output.innerHTML = `🌤️ ${date} ${city} 天氣：${data.description}，${data.temp}°C`;
+      } else {
+        output.innerText = `⚠️ ${data.message}`;
+      }
+    })
+    .catch((err) => {
+      console.error("查詢天氣失敗：", err);
+      output.innerText = "⚠️ 無法取得天氣資料";
+    });
+}
+
+</script>
+</body>
+</html>

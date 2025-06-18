@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>寄送紀錄</title>
+  <link rel="stylesheet" href="../css/record.css" />
+</head>
+<body>
+  <!-- 導覽列 -->
+  <nav class="navbar">
+    <div class="nav-logo"><img src="../pic/logo.png" alt="喜帖範例圖" width="55" /></div>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">主頁</a></li>
+      <li><a href="guest.html">收件人管理</a></li>
+      <li><a href="style.html">喜帖設計</a></li>
+      <li><a href="send.html">發送設定</a></li>
+      <li><a href="record.html" class="active">寄送紀錄</a></li>
+      <li><a href="program_generator.html">婚禮節目表</a></li> 
+      <li><a href="venue.html">婚宴會館</a></li> 
+    </ul>
+  </nav>
+
+  <div class="dashboard-container">
+    <h1>喜帖寄送系統</h1>
+
+    <div class="summary">
+      <div class="card">
+        <h3>總收件人數</h3>
+        <p>124 位</p>
+      </div>
+      <div class="card">
+        <h3>已寄出</h3>
+        <p>102 封</p>
+      </div>
+      <div class="card">
+        <h3>已開啟</h3>
+        <p>87 位</p>
+      </div>
+    </div>
+
+  <div class="records-container">
+    <h2>寄送紀錄與追蹤</h2>
+
+    <input type="text" id="search" placeholder="搜尋姓名或 Email..." />
+
+    <table>
+      <thead>
+        <tr>
+          <th>姓名</th>
+          <th>Email</th>
+          <th>狀態</th>
+          <th>是否開啟</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>王小明</td>
+          <td>ming@example.com</td>
+          <td><span class="status success">已寄出</span></td>
+          <td><span class="opened">✔ 已開啟</span></td>
+          <td><button class="resend">重寄</button></td>
+        </tr>
+        <tr>
+          <td>陳小美</td>
+          <td>mei@example.com</td>
+          <td><span class="status failed">寄送失敗</span></td>
+          <td><span class="opened not">✘ 未開啟</span></td>
+          <td><button class="resend">重寄</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

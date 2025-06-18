@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>喜帖樣式編輯</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <!-- 導覽列 -->
+  <nav class="navbar">
+    <div class="nav-logo"><img src="../pic/logo.png" alt="喜帖範例圖" width="55" /></div>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">主頁</a></li>
+      <li><a href="guest.html">收件人管理</a></li>
+      <li><a href="style.html" class="active">喜帖設計</a></li>
+      <li><a href="send.html">發送設定</a></li>
+      <li><a href="record.html">寄送紀錄</a></li>
+      <li><a href="program_generator.html">婚禮節目表</a></li> 
+      <li><a href="venue.html">婚宴會館</a></li> 
+    </ul>
+  </nav>
+
+  <div class="design-container">
+    <h2>喜帖樣式選擇及預覽</h2>
+
+    <form id="design-form">
+      <label for="tone">選擇樣式模板</label>
+      <select id="tone">
+        <option value="簡約浪漫風">簡約浪漫風</option>
+        <option value="綠意信箋">綠意信箋</option>
+        <option value="喜悅滿堂">喜悅滿堂</option>
+      </select>
+
+      <label for="groom">新郎姓名</label>
+      <input type="text" id="groom" placeholder="例如：小蟹">
+
+      <label for="bride">新娘姓名</label>
+      <input type="text" id="bride" placeholder="例如：小na">
+
+      <label for="date">婚禮日期</label>
+      <input type="date" id="date" />
+
+      <label for="place">婚禮地點</label>
+      <input type="text" id="place" placeholder="例如：晶華酒店" />
+
+      <button type="button" onclick="generateInvite()">預覽喜帖</button>
+    </form>
+
+    <h3>AI 喜帖內容</h3>
+    <div id="result" class="preview-box">（這裡會顯示產生的內容）</div>
+
+    <h3>預覽結果</h3>
+    <div id="preview-box" class="preview-box">
+      <div class="invitation-preview">
+        <img id="template-preview-img" src="" alt="樣式預覽圖" />
+        <div id="invitation-text" class="invitation-text">
+          （這裡會顯示喜帖內容）
+        </div>
+      </div>
+    </div>    
+
+    <button type="button" id="batch-generate-btn">批量生產</button>
+
+    <h3>批量喜帖預覽</h3>
+    <div id="guest-buttons" class="guest-buttons"></div>
+
+    <div id="batch-preview" class="batch-preview"></div>
+
+    <!-- 單人預覽區 -->
+    <div id="batch-single-preview" class="invitation-preview" style="display: none;">
+      <img id="batch-preview-img" src="" alt="喜帖圖片預覽" />
+      <div id="batch-preview-text" class="invitation-text"></div>
+    </div>
+  </div>
+
+  <script>
+    async function generateInvite() {
+    const groom = document.getElementById("groom").value;
+    const bride = "（此頁未輸入，請於AI欄位補入）"; // 或改成你要的固定值
+    const date = "2025年12月20日";  // 預設值或可取用 input 欄
+    const place = "台北晶華酒店";  // 同上
+    const tone = document.getElementById("tone")?.value || "典雅感性";
+
+    const res = await fetch("http://localhost:3001/generate-wedding", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ groom, bride, date, place, tone })
+    });
+
+    const data = await res.json();
+    const result = data.reply || "⚠️ 發生錯誤，請稍後再試。";
+
+    // 顯示在 AI 區塊
+    document.getElementById("result").innerText = result;
+
+    // ✅ 顯示在預覽喜帖
+    document.getElementById("invitation-text").innerText = result;
+
+    // ✅ 若需要也同步顯示在單人批次預覽，可加這一行
+    document.getElementById("batch-preview-text").innerText = result;
+  }
+
+
+    function updateTemplateImage() {
+      const selected = document.getElementById('tone').value;
+      const img = document.getElementById('template-preview-img');
+
+      let imgSrc = '';
+      switch (selected) {
+        case '簡約浪漫風':
+          imgSrc = '../pic/card01.jpg';
+          break;
+        case '綠意信箋':
+          imgSrc = '../pic/card02.jpg';
+          break;
+        case '喜悅滿堂':
+          imgSrc = '../pic/card03.jpg';
+          break;
+        default:
+          imgSrc = '';
+      }
+
+      img.src = imgSrc;
+      img.style.display = imgSrc ? 'block' : 'none';
+    }
+
+    function generateBatch() {
+      const guestButtonsContainer = document.getElementById('guest-buttons');
+      guestButtonsContainer.innerHTML = '';
+
+      const guests = [
+        { name: '王小明', date: '2025年12月20日' },
+        { name: '陳小美', date: '2025年12月20日' },
+        { name: '李大華', date: '2025年12月20日' },
+      ];
+
+      guests.forEach(guest => {
+        const btn = document.createElement('button');
+        btn.className = 'guest-btn';
+        btn.innerText = guest.name;
+        btn.addEventListener('click', () => showGuestPreview(guest));
+        guestButtonsContainer.appendChild(btn);
+      });
+
+      document.getElementById('batch-preview').innerHTML = '';
+      document.getElementById('batch-preview').style.display = 'none';
+      const singlePreview = document.getElementById('batch-single-preview');
+      singlePreview.style.display = 'none';
+    }
+
+    function showGuestPreview(guest) {
+      const content = document.getElementById('content').value;
+      const replaced = content
+        .replace(/{name}/g, guest.name)
+        .replace(/{date}/g, guest.date);
+
+      const selected = document.getElementById('tone').value;
+
+      const templateImgMap = {
+        classic: '../pic/card01.jpg',
+        gold: '../pic/card02.jpg',
+        simple: '../pic/card03.jpg'
+      };
+
+      const imgSrc = templateImgMap[selected] || '';
+
+      document.getElementById('batch-preview-img').src = imgSrc;
+      document.getElementById('batch-preview-text').innerText = replaced;
+
+      document.getElementById('batch-single-preview').style.display = 'block';
+      document.getElementById('batch-single-preview').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.getElementById('tone').addEventListener('change', updateTemplateImage);
+    document.getElementById('batch-generate-btn').addEventListener('click', generateBatch);
+
+    window.onload = () => {
+      updateTemplateImage();
+      generatePreview();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+/* guests.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background-color: #f4f6f8;
+    padding: 2rem;
+    padding-top: 70px;
+  }
+  
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: #ff6b81;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    z-index: 1000;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .nav-logo {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1.2rem;
+  }
+  
+  .nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: border-bottom 0.2s;
+  }
+  
+  .nav-links a:hover,
+  .nav-links .active {
+    border-bottom: 2px solid white;
+  }
+
+  .guests-container {
+    max-width: 1000px;
+    margin: auto;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+    text-align: center;
+  }
+  
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .top-bar input[type="text"] {
+    flex: 1;
+    padding: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    min-width: 200px;
+  }
+  
+  .top-bar button {
+    padding: 0.7rem 1rem;
+    background-color: #ff6b81;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  
+  .top-bar button:hover {
+    background-color: #ff4757;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  th {
+    background-color: #f0f0f0;
+  }
+  
+  .status {
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+  }
+  
+  .status.sent {
+    color: green;
+    background-color: #e1f5e1;
+  }
+  
+  .status.pending {
+    color: #ff8800;
+    background-color: #fff3e0;
+  }
+  
+  button.edit {
+    background-color: #3498db;
+  }
+  
+  button.delete {
+    background-color: #e74c3c;
+  }
+  
+  button.edit:hover {
+    background-color: #2980b9;
+  }
+  
+  button.delete:hover {
+    background-color: #c0392b;
+  }
+  
+  .next-step-container {
+    text-align: center;
+    margin-top: 2rem;
+  }
+  
+  .next-step-btn {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    background-color: #2ed573;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .next-step-btn:hover {
+    background-color: #1abc9c;
+  }
+  

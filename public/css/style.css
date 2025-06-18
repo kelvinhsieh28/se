@@ -1,0 +1,260 @@
+/* design.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background-color: #fef6f7;
+    padding: 2rem;
+    padding-top: 70px;
+  }
+
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: #ff6b81;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    z-index: 1000;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .nav-logo {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1.2rem;
+  }
+  
+  .nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: border-bottom 0.2s;
+  }
+  
+  .nav-links a:hover,
+  .nav-links .active {
+    border-bottom: 2px solid white;
+  }
+  
+  .design-container {
+    max-width: 800px;
+    margin: auto;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  h2, h3 {
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  label {
+    display: block;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  select, textarea, input {
+    width: 100%;
+    padding: 0.7rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  textarea {
+    resize: vertical;
+  }
+  
+  button {
+    margin-top: 1rem;
+    padding: 0.8rem 1.2rem;
+    background-color: #ff6b81;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #ff4757;
+  }
+
+  
+  
+  .preview-box {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    border: 2px dashed #ffa3b1;
+    background-color: #fff8f9;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    font-family: "Noto Serif TC", serif;
+    color: #444;
+    line-height: 1.8;
+  }
+  
+  .batch-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    justify-content: center;
+  }
+  
+  .preview-card {
+    width: 260px;
+    background-color: #fff0f3;
+    border: 1px solid #ffd6dc;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .preview-text {
+    font-family: "Noto Serif TC", serif;
+    white-space: pre-wrap;
+    font-size: 0.95rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+  
+  .preview-image img {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+  
+  .template-image-box {
+    margin-top: 1rem;
+    text-align: center;
+  }
+  
+  #template-preview-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  
+  .invitation-preview {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .invitation-preview img {
+    width: 100%;
+    border-radius: 12px;
+    display: block;
+  }
+  
+  .invitation-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 1rem;
+    color: #333;
+    text-align: center;
+    white-space: pre-wrap;
+    font-family: "Noto Serif TC", serif;
+    border-radius: 10px;
+    max-width: 90%;
+    line-height: 1.8;
+  }
+  
+  #batch-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+#batch-preview-img {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: 12px;
+}
+  
+  
+.guest-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.guest-btn {
+  background-color: #ff6b81;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.guest-btn:hover {
+  background-color: #ff4757;
+}
+
+#batch-single-preview {
+  width: 100%;
+  max-width: 500px;
+  margin: auto;
+}
+
+
+#batch-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+#batch-preview-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-height: 80%;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  text-align: center;
+  font-family: "Noto Serif TC", serif;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.8;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 1rem;
+  border-radius: 10px;
+}

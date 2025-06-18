@@ -1,0 +1,109 @@
+.program-container {
+  max-width: 700px;
+  margin: 100px auto;
+  background: rgba(255,255,255,0.95);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+input, select {
+  padding: 0.6rem;
+  margin: 1rem 0;
+  width: 80%;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.btn {
+  padding: 0.7rem 2rem;
+  background-color: #ff6b81;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn:hover {
+  background-color: #ff4757;
+}
+
+.program-output {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 800px;
+  min-height: 600px; /* ← 替換成你自己的圖 */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 3rem 2rem;
+  color: #000000;
+  font-weight: bold;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  border-radius: 20px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.program-output ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.download-btn-container {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* ✅ 儲存按鈕本身（維持跟 .btn 一致風格） */
+.download-btn-container .btn {
+  margin-top: 0.5rem;
+  padding: 0.7rem 2rem;
+  background-color: #ffa07a;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.download-btn-container .btn:hover {
+  background-color: #ff7f50;
+}
+
+#captureArea {
+  margin: 2rem auto;
+  width: 100%;
+  max-width: 800px;
+  min-height: 600px;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+#captureArea img.bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+#programContent {
+  position: relative;
+  z-index: 1;
+  padding: 3rem 2rem;
+  color: #000;
+  font-weight: bold;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  text-align: left;
+}
+#programContent ul {
+  list-style: none;
+  padding-left: 0;
+}

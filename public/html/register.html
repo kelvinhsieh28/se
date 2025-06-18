@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>註冊新帳號</title>
+  <link rel="stylesheet" href="../css/register.css" />
+</head>
+<body>
+  <!-- 導覽列 -->
+  <nav class="navbar">
+    <div class="nav-logo"><img src="../pic/logo.png" alt="喜帖範例圖" width="55" /></div>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html" class="active">主頁</a></li>
+      <li><a href="guest.html">收件人管理</a></li>
+      <li><a href="style.html">喜帖設計</a></li>
+      <li><a href="send.html">發送設定</a></li>
+      <li><a href="record.html">寄送紀錄</a></li>
+    </ul>
+  </nav>
+
+  <div class="register-container">
+    <h2>註冊新帳號</h2>
+    <form class="register-form" onsubmit="handleRegister(event)">
+      <label for="name">姓名</label>
+      <input type="text" id="name" name="name" placeholder="請輸入姓名" required />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="請輸入 Email" required />
+
+      <label for="password">密碼</label>
+      <input type="password" id="password" name="password" placeholder="請輸入密碼" required />
+
+      <label for="confirm-password">確認密碼</label>
+      <input type="password" id="confirm-password" name="confirm" placeholder="再次輸入密碼" required />
+
+      <button type="submit">註冊</button>
+    </form>
+
+    <p class="link-text">已有帳號？<a href="login.html">登入</a></p>
+  </div>
+
+<script>
+  async function handleRegister(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const confirm = document.getElementById("confirm-password").value.trim();
+
+    if (password !== confirm) {
+      alert("密碼不一致");
+      return;
+    }
+
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await res.json();
+    alert(data.message);
+
+    if (data.success) {
+      window.location.href = "login.html";
+    }
+  }
+</script>
+
+
+</body>
+</html>
