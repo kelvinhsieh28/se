@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>喜帖樣式編輯</title>
   <link rel="stylesheet" href="../css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
   <!-- 導覽列 -->
@@ -47,12 +48,9 @@
       <button type="button" onclick="generateInvite()">預覽喜帖</button>
     </form>
 
-    <h3>AI 喜帖內容</h3>
-    <div id="result" class="preview-box">（這裡會顯示產生的內容）</div>
-
     <h3>預覽結果</h3>
     <div id="preview-box" class="preview-box">
-      <div class="invitation-preview">
+      <div class="invitation-preview" id="invitation-card">
         <img id="template-preview-img" src="" alt="樣式預覽圖" />
         <div id="invitation-text" class="invitation-text">
           （這裡會顯示喜帖內容）
@@ -60,72 +58,54 @@
       </div>
     </div>    
 
-    <button type="button" id="batch-generate-btn" onclick="generateBatch()">批量生產</button>
+    <button type="button" id="batch-generate-btn">批量生產</button>
 
     <h3>批量喜帖預覽</h3>
     <div id="guest-buttons" class="guest-buttons"></div>
 
-    <div id="batch-preview" class="batch-preview"></div>
+    <script>
+      async function generateInvite() {
+        const groom = document.getElementById("groom").value;
+        const bride = document.getElementById("bride").value;
+        const date = document.getElementById("date").value;
+        const place = document.getElementById("place").value;
+        const tone = document.getElementById("tone").value;
 
-    <!-- 單人預覽區 -->
-    <div id="batch-single-preview" class="invitation-preview" style="display: none;">
-      <img id="batch-preview-img" src="" alt="喜帖圖片預覽" />
-      <div id="batch-preview-text" class="invitation-text"></div>
-    </div>
-  </div>
+        const res = await fetch("/api/generate-invitation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ groom, bride, date, place, tone })
+        });
 
-  <script>
-    async function generateInvite() {
-    const groom = document.getElementById("groom").value;
-    const bride = document.getElementById("bride").value; // 或改成你要的固定值
-    const date = document.getElementById("date").value;  // 預設值或可取用 input 欄
-    const place = document.getElementById("place").value;  // 同上
-    const tone = document.getElementById("tone")?.value || "典雅感性";
-
-    const res = await fetch("http://localhost:3001/generate-wedding", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ groom, bride, date, place, tone })
-    });
-
-    const data = await res.json();
-    const result = data.reply || "⚠️ 發生錯誤，請稍後再試。";
-
-    // 顯示在 AI 區塊
-    document.getElementById("result").innerText = result;
-
-    // ✅ 顯示在預覽喜帖
-    document.getElementById("invitation-text").innerText = result;
-
-    // ✅ 若需要也同步顯示在單人批次預覽，可加這一行
-    document.getElementById("batch-preview-text").innerText = result;
-  }
-
-
-    function updateTemplateImage() {
-      const selected = document.getElementById('tone').value;
-      const img = document.getElementById('template-preview-img');
-
-      let imgSrc = '';
-      switch (selected) {
-        case '簡約浪漫風':
-          imgSrc = '../pic/card01.jpg';
-          break;
-        case '綠意信箋':
-          imgSrc = '../pic/card02.jpg';
-          break;
-        case '喜悅滿堂':
-          imgSrc = '../pic/card03.jpg';
-          break;
-        default:
-          imgSrc = '';
+        const data = await res.json();
+        const result = data.invitation || "⚠️ 發生錯誤，請稍後再試。";
+        document.getElementById("invitation-text").innerText = result;
       }
 
-      img.src = imgSrc;
-      img.style.display = imgSrc ? 'block' : 'none';
-    }
+      function updateTemplateImage() {
+        const selected = document.getElementById('tone').value;
+        const img = document.getElementById('template-preview-img');
 
-    async function generateBatch() {
+        let imgSrc = '';
+        switch (selected) {
+          case '簡約浪漫風':
+            imgSrc = '../pic/card01.jpg';
+            break;
+          case '綠意信箋':
+            imgSrc = '../pic/card02.jpg';
+            break;
+          case '喜悅滿堂':
+            imgSrc = '../pic/card03.jpg';
+            break;
+          default:
+            imgSrc = '';
+        }
+
+        img.src = imgSrc;
+        img.style.display = imgSrc ? 'block' : 'none';
+      }
+
+      async function generateBatch() {
         const groom = document.getElementById("groom").value;
         const bride = document.getElementById("bride").value;
         const date = document.getElementById("date").value;
@@ -139,6 +119,7 @@
         });
 
         const guests = await res.json();
+        if (!Array.isArray(guests)) return alert("回傳格式錯誤！");
 
         for (const guest of guests) {
           document.getElementById("invitation-text").innerText = guest.invitation_text;
@@ -152,7 +133,7 @@
               });
             });
         }
-        alert("已完成批量生成並儲存圖片到資料庫！");
+        alert("✅ 已完成批量生成並儲存圖片到資料庫！");
       }
 
       document.getElementById('tone').addEventListener('change', updateTemplateImage);
@@ -161,50 +142,7 @@
       window.onload = () => {
         updateTemplateImage();
       }
-    async function saveInvitationImage(guestId, elementId) {
-  const element = document.getElementById(elementId);
-
-  const canvas = await html2canvas(element);
-  const base64Image = canvas.toDataURL("image/png");
-
-  await fetch("/api/save-invitation-image", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ guestId, image: base64Image })
-  });
-}
-
-
-    function showGuestPreview(guest) {
-      const content = document.getElementById('content').value;
-      const replaced = content
-        .replace(/{name}/g, guest.name)
-        .replace(/{date}/g, guest.date);
-
-      const selected = document.getElementById('tone').value;
-
-      const templateImgMap = {
-        classic: '../pic/card01.jpg',
-        gold: '../pic/card02.jpg',
-        simple: '../pic/card03.jpg'
-      };
-
-      const imgSrc = templateImgMap[selected] || '';
-
-      document.getElementById('batch-preview-img').src = imgSrc;
-      document.getElementById('batch-preview-text').innerText = replaced;
-
-      document.getElementById('batch-single-preview').style.display = 'block';
-      document.getElementById('batch-single-preview').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    document.getElementById('tone').addEventListener('change', updateTemplateImage);
-    document.getElementById('batch-generate-btn').addEventListener('click', generateBatch);
-
-    window.onload = () => {
-      updateTemplateImage();
-      generatePreview();
-    }
-  </script>
+    </script>
+  </div>
 </body>
 </html>
