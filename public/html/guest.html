@@ -25,7 +25,11 @@
 
     <div class="top-bar">
       <input type="text" id="search" placeholder="搜尋姓名或 Email..." oninput="filterTable()" />
-      <input type="file" id="csvFile" accept=".csv" />
+      <div class="file-upload">
+      <label for="csvFile" class="file-upload-label">選擇 CSV 檔案</label>
+      <input type="file" id="csvFile" name="csvFile" accept=".csv" />
+      </div>
+
       <button onclick="importCSV()">匯入 CSV</button>
     </div>
 
