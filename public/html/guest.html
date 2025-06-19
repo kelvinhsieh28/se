@@ -35,10 +35,7 @@
       <a href="https://wedding-api-mwk3.onrender.com/templates/guest.csv" download>
         <button class="btn">下載模板</button>
       </a>
-
-
     </div>
-
 
     <table>
       <thead>
@@ -108,40 +105,43 @@
     }
 
     function deleteGuest(id) {
-  if (!confirm("你確定要刪除這筆資料嗎？")) return;
+      if (!confirm("你確定要刪除這筆資料嗎？")) return;
 
-  fetch(`https://wedding-api-mwk3.onrender.com/api/guest/${id}`, {
-    method: "DELETE"
-  })
-    .then(res => res.json())
-    .then(json => {
-      if (json.success) {
-        alert("刪除成功！");
-        loadGuests(); // 重新載入表格
-      } else {
-        alert("刪除失敗：" + json.message);
-      }
-    })
-    .catch(err => {
-      console.error("❌ 刪除錯誤：", err);
-      alert("刪除失敗，請稍後再試");
+      fetch(`https://wedding-api-mwk3.onrender.com/api/guest/${id}`, {
+        method: "DELETE"
+      })
+      .then(res => res.json())
+      .then(json => {
+        if (json.success) {
+          alert("刪除成功！");
+          loadGuests();
+        } else {
+          alert("刪除失敗：" + json.message);
+        }
+      })
+      .catch(err => {
+        console.error("❌ 刪除錯誤：", err);
+        alert("刪除失敗，請稍後再試");
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadGuests();
+
+      // ✅ 綁定匯入 CSV 事件
+      document.getElementById("uploadBtn").addEventListener("click", importCSV);
+
+      // ✅ 綁定顯示檔名
+      const fileInput = document.getElementById("csvFile");
+      const fileLabel = document.getElementById("fileLabel");
+      fileInput.addEventListener("change", function () {
+        const fileName = this.files[0] ? this.files[0].name : "選擇 CSV 檔案";
+        fileLabel.textContent = fileName;
+      });
+
+      // ✅ 綁定搜尋
+      document.getElementById("search").addEventListener("input", filterTable);
     });
-}
-
-
-
-
-
-  const fileInput = document.getElementById("csvFile");
-  const fileLabel = document.getElementById("fileLabel");
-
-  fileInput.addEventListener("change", function () {
-    const fileName = this.files[0] ? this.files[0].name : " 選擇 CSV 檔案";
-    fileLabel.textContent = fileName;
-  });
-
-
-
 
     function filterTable() {
       const input = document.getElementById("search").value.toLowerCase();
@@ -152,8 +152,6 @@
         row.style.display = (name.includes(input) || email.includes(input)) ? "" : "none";
       });
     }
-
-    document.addEventListener("DOMContentLoaded", loadGuests);
   </script>
 </body>
 </html>
