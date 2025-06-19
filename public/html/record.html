@@ -5,73 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>寄送紀錄</title>
   <link rel="stylesheet" href="../css/record.css" />
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // 讀取寄送紀錄
-      fetch("https://wedding-api-mwk3.onrender.com/api/records")
-        .then(res => res.json())
-        .then(json => {
-          if (!json.success) throw new Error("讀取失敗");
-          const data = json.data;
-          const tbody = document.querySelector("table tbody");
-          tbody.innerHTML = "";
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // 取得回覆表單資料，統計已回覆人數
+    fetch("https://wedding-api-mwk3.onrender.com/api/records")
+      .then(res => res.json())
+      .then(json => {
+        if (!json.success) throw new Error("讀取失敗");
+        const data = json.data;
+        const tbody = document.querySelector("table tbody");
+        tbody.innerHTML = "";
 
-          let total = data.length;
-          let sent = 0;
-          let opened = 0;
+        const repliedCount = data.length;
 
-          data.forEach(entry => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-              <td>${entry.name}</td>
-              <td>${entry.attendance}</td>
-              <td>${entry.guests}</td>
-              <td>${entry.notes}</td>
-              <td>${entry.contact}</td>
-              <td><button class="resend">重寄</button></td>
-            `;
-            tbody.appendChild(tr);
+        data.forEach(entry => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${entry.name}</td>
+            <td>${entry.attendance}</td>
+            <td>${entry.guests}</td>
+            <td>${entry.notes}</td>
+            <td>${entry.contact}</td>
+            <td><button class="resend">重寄</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
 
-            if (entry.attendance === "是" || entry.attendance === "會出席") sent++;
-            else opened++;
+        document.querySelector("#sent").innerText = `${repliedCount} 位`;
+
+        // 再抓 guest 數來算未回覆
+        fetch("https://wedding-api-mwk3.onrender.com/api/guests")
+          .then(res => res.json())
+          .then(json => {
+            const total = json.data.length;
+            document.getElementById("guestCount").textContent = total + " 人";
+            document.getElementById("opened").textContent = (total - repliedCount) + " 位";
           });
-
-          document.querySelector("#sent").innerText = `${sent} 位`;
-          document.querySelector("#opened").innerText = `${opened} 位`;
-        })
-        .catch(err => {
-          console.error("❌ 錯誤：", err);
-        });
-
-      // 讀取總收件人數
-      fetch("https://wedding-api-mwk3.onrender.com/api/guests")
-        .then(res => res.json())
-        .then(json => {
-          const count = json.data.length;
-          document.getElementById("guestCount").textContent = count + " 人";
-        });
-
-      // 顯示已回覆人數（如果有後端支援 is_replied）
-      fetch("https://wedding-api-mwk3.onrender.com/api/rsvp-count")
-        .then(res => res.json())
-        .then(json => {
-          if (json.success) {
-            document.getElementById("sent").textContent = json.count + " 位";
-            document.getElementById("opened").textContent = "-"; // 若已回覆數獨立顯示，這格可清空或顯示剩餘
-          }
-        });
-    });
-
-    function filterTable() {
-      const input = document.getElementById("search").value.toLowerCase();
-      const rows = document.querySelectorAll("tbody tr");
-      rows.forEach(row => {
-        const name = row.children[0].textContent.toLowerCase();
-        const contact = row.children[4].textContent.toLowerCase();
-        row.style.display = (name.includes(input) || contact.includes(input)) ? "" : "none";
+      })
+      .catch(err => {
+        console.error("❌ 錯誤：", err);
       });
-    }
-  </script>
+  });
+
+  function filterTable() {
+    const input = document.getElementById("search").value.toLowerCase();
+    const rows = document.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+      const name = row.children[0].textContent.toLowerCase();
+      const contact = row.children[4].textContent.toLowerCase();
+      row.style.display = (name.includes(input) || contact.includes(input)) ? "" : "none";
+    });
+  }
+</script>
+
 </head>
 <body>
   <!-- 導覽列 -->
