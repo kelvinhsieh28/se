@@ -90,11 +90,33 @@
                 <td>${g.email}</td>
                 <td>${g.relation}</td>
                 <td>${g.interest}</td>
-                <button class="delete" onclick="deleteGuest(${g.guest_id})">刪除</button>
+                <td><button class="delete" onclick="deleteGuest(${g.guest_id})">刪除</button></td>
               </tr>`;
           });
         });
     }
+
+    function deleteGuest(id) {
+  if (!confirm("你確定要刪除這筆資料嗎？")) return;
+
+  fetch(`https://wedding-api-mwk3.onrender.com/api/guest/${id}`, {
+    method: "DELETE"
+  })
+    .then(res => res.json())
+    .then(json => {
+      if (json.success) {
+        alert("刪除成功！");
+        loadGuests(); // 重新載入表格
+      } else {
+        alert("刪除失敗：" + json.message);
+      }
+    })
+    .catch(err => {
+      console.error("❌ 刪除錯誤：", err);
+      alert("刪除失敗，請稍後再試");
+    });
+}
+
 
     function filterTable() {
       const input = document.getElementById("search").value.toLowerCase();
