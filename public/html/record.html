@@ -5,6 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>寄送紀錄</title>
   <link rel="stylesheet" href="../css/record.css" />
+  <script>
+    async function fetchRecords() {
+      try {
+        const res = await fetch("https://wedding-api-mwk3.onrender.com/api/records");
+        const data = await res.json();
+
+        const tbody = document.querySelector("tbody");
+        tbody.innerHTML = "";
+
+        data.forEach(record => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${record.name}</td>
+            <td>${record.email}</td>
+            <td><span class="status ${record.status === '已寄出' ? 'success' : 'failed'}">${record.status}</span></td>
+            <td><span class="opened ${record.opened ? '' : 'not'}">${record.opened ? '✔ 已開啟' : '✘ 未開啟'}</span></td>
+            <td><button class="resend" onclick="resendEmail('${record.email}')">重寄</button></td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (err) {
+        console.error("資料載入失敗：", err);
+      }
+    }
+
+    async function resendEmail(email) {
+      try {
+        const res = await fetch("https://wedding-api-mwk3.onrender.com/api/resend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        });
+        const result = await res.json();
+        alert(result.message || "已嘗試重寄郵件");
+        fetchRecords();
+      } catch (err) {
+        console.error("重寄失敗：", err);
+        alert("重寄時發生錯誤");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", fetchRecords);
+  </script>
 </head>
 <body>
   <!-- 導覽列 -->
@@ -27,50 +70,50 @@
     <div class="summary">
       <div class="card">
         <h3>總收件人數</h3>
-        <p>124 位</p>
+        <p id="total">-- 位</p>
       </div>
       <div class="card">
         <h3>已寄出</h3>
-        <p>102 封</p>
+        <p id="sent">-- 封</p>
       </div>
       <div class="card">
         <h3>已開啟</h3>
-        <p>87 位</p>
+        <p id="opened">-- 位</p>
       </div>
     </div>
 
-  <div class="records-container">
-    <h2>寄送紀錄與追蹤</h2>
+    <div class="records-container">
+      <h2>寄送紀錄與追蹤</h2>
 
-    <input type="text" id="search" placeholder="搜尋姓名或 Email..." />
+      <input type="text" id="search" placeholder="搜尋姓名或 Email..." oninput="filterTable()" />
 
-    <table>
-      <thead>
-        <tr>
-          <th>姓名</th>
-          <th>Email</th>
-          <th>狀態</th>
-          <th>是否開啟</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>王小明</td>
-          <td>ming@example.com</td>
-          <td><span class="status success">已寄出</span></td>
-          <td><span class="opened">✔ 已開啟</span></td>
-          <td><button class="resend">重寄</button></td>
-        </tr>
-        <tr>
-          <td>陳小美</td>
-          <td>mei@example.com</td>
-          <td><span class="status failed">寄送失敗</span></td>
-          <td><span class="opened not">✘ 未開啟</span></td>
-          <td><button class="resend">重寄</button></td>
-        </tr>
-      </tbody>
-    </table>
+      <table>
+        <thead>
+          <tr>
+            <th>姓名</th>
+            <th>Email</th>
+            <th>狀態</th>
+            <th>是否開啟</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 資料由 JS 插入 -->
+        </tbody>
+      </table>
+    </div>
   </div>
+
+  <script>
+    function filterTable() {
+      const input = document.getElementById("search").value.toLowerCase();
+      const rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const name = row.children[0].textContent.toLowerCase();
+        const email = row.children[1].textContent.toLowerCase();
+        row.style.display = (name.includes(input) || email.includes(input)) ? "" : "none";
+      });
+    }
+  </script>
 </body>
 </html>

@@ -209,6 +209,19 @@ app.post("/api/rsvp", (req, res) => {
   });
 });
 
+// ✅ 加在 index.js 裡面
+app.get("/api/records", (req, res) => {
+  const sql = "SELECT * FROM rsvp ORDER BY rsvp_id DESC";
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ 查詢記錄失敗：", err);
+      return res.status(500).json({ success: false, message: "資料庫錯誤" });
+    }
+
+    res.json({ success: true, data: results });
+  });
+});
 
 
 
