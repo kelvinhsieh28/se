@@ -137,16 +137,6 @@ app.get("/api/records", (req, res) => {
   });
 });
 
-// ✅ RSVP 統計回覆人數 API
-app.get("/api/rsvp-count", (req, res) => {
-  const sql = "SELECT COUNT(*) AS count FROM rsvp WHERE attendance IN ('是', '會出席')";
-  db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: "資料庫錯誤" });
-    res.json({ success: true, count: results[0].count });
-  });
-});
-
-
 // ✅ CSV 上傳與匯入 guest
 const upload = multer({ dest: "uploads/" });
 app.post("/api/import-guests", upload.single("csvFile"), (req, res) => {
@@ -245,7 +235,6 @@ app.post("/api/generate-program", async (req, res) => {
 賓客興趣：${interests}
 
 請務必以 13:00 開始、每半小時一個節目為主，並展現風格與興趣的結合，語氣溫馨自然。
-⚠️ 請用 HTML <table> 產出節目表，時間與節目分成兩欄，文字不要超過寬度。
 `;
 
 
