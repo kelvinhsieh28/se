@@ -1,0 +1,15 @@
+<div class="program-container">
+  <h1>婚禮節目表生成器</h1>
+  <p>請選擇婚禮風格...</p>
+  <select id="styleInput">...</select>
+  <button onclick="generateProgram()">生成節目表</button>
+
+  <div id="captureArea" style="display: none;">
+    <img src="../pic/wedding_bg.png" class="bg" alt="背景圖" />
+    <div id="programContent"></div>
+  </div>
+
+  <div class="download-btn-container" id="saveButtonContainer" style="display: none;">
+    <button onclick="downloadImage()" class="btn">儲存節目表</button>
+  </div>
+</div>
