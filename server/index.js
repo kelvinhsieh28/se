@@ -106,7 +106,12 @@ app.get("/api/venue/:id", (req, res) => {
 // ✅ AI 喜帖產生
 app.post("/generate-wedding", async (req, res) => {
   const { groom, bride, date, place, tone } = req.body;
-  const prompt = `請幫我撰寫一段婚禮喜帖邀請內容，語氣為「${tone}」，包含新人 ${groom} 與 ${bride}，日期為 ${date}，地點是 ${place}`;
+  const prompt = `我們將於 ${date} 在 ${place} 舉辦婚禮。
+
+請你幫我產生一段婚禮邀請內容，語氣自然、溫馨、有情感，像是在對朋友說話，
+內容中包含新郎：${groom}，新娘：${bride}，婚禮主題是「${tone}」。
+
+請用口語、不要太正式。`;
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent(prompt);
@@ -235,6 +240,7 @@ app.post("/api/generate-program", async (req, res) => {
 賓客興趣：${interests}
 
 請務必以 13:00 開始、每半小時一個節目為主，並展現風格與興趣的結合，語氣溫馨自然。
+⚠️ 請用 HTML <table> 產出節目表，時間與節目分成兩欄，文字不要超過寬度。
 `;
 
 
