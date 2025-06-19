@@ -24,16 +24,17 @@
     <h2>賓客名單管理</h2>
 
     <div class="top-bar">
-      <input type="text" id="search" placeholder="搜尋姓名或 Email..." oninput="filterTable()" />
-    <div class="file-upload">
-      <label for="csvFile" class="file-upload-label" id="fileLabel">選擇 CSV 檔案</label>
-      <input type="file" id="csvFile" name="csvFile" accept=".csv" />
+      <input type="text" id="search" placeholder="搜尋姓名或 Email..." />
+
+      <div class="file-upload">
+        <label for="csvFile" class="file-upload-label" id="fileLabel">選擇 CSV 檔案</label>
+        <input type="file" id="csvFile" name="csvFile" accept=".csv" />
+      </div>
+
+      <button id="uploadBtn">匯入 CSV</button>
+      <button onclick="window.location.href='/templates/guest.csv'">下載模板</button>
     </div>
 
-
-
-      <button onclick="importCSV()">匯入 CSV</button>
-    </div>
 
     <table>
       <thead>
@@ -131,8 +132,8 @@
   const fileLabel = document.getElementById("fileLabel");
 
   fileInput.addEventListener("change", function () {
-    const fileName = this.files[0] ? this.files[0].name : "📂 選擇 CSV 檔案";
-    fileLabel.textContent = "📂 " + fileName;
+    const fileName = this.files[0] ? this.files[0].name : " 選擇 CSV 檔案";
+    fileLabel.textContent = + fileName;
   });
 
 
