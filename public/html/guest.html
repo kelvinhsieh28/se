@@ -1,4 +1,3 @@
-<!-- ✅ guest.html 修改版：支援上傳 CSV 並匯入 MySQL -->
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -8,9 +7,10 @@
   <link rel="stylesheet" href="../css/guest.css" />
 </head>
 <body>
+  <!-- 導覽列 -->
   <nav class="navbar">
     <div class="nav-logo"><img src="../pic/logo.png" alt="喜帖範例圖" width="55" /></div>
-    <ul class="nav-links" id="nav-links">
+    <ul class="nav-links">
       <li><a href="index.html">主頁</a></li>
       <li><a href="guest.html" class="active">收件人管理</a></li>
       <li><a href="style.html">喜帖設計</a></li>
@@ -24,7 +24,6 @@
   <div class="guests-container">
     <h2>賓客名單管理</h2>
     <div class="top-bar">
-      <input type="text" id="search" placeholder="搜尋姓名或 Email..." />
       <input type="file" id="csvFile" accept=".csv" />
       <button onclick="importCSV()">匯入 CSV</button>
     </div>
@@ -39,47 +38,36 @@
           <th>操作</th>
         </tr>
       </thead>
-      <tbody id="guestTableBody">
-        <!-- 資料由 JS 插入 -->
-      </tbody>
+      <tbody id="guestTableBody"></tbody>
     </table>
-  </div>
-
-  <div class="next-step-container">
-    <button class="next-step-btn" onclick="location.href='style.html'">下一步</button>
   </div>
 
   <script>
     function importCSV() {
-      const fileInput = document.getElementById('csvFile');
+      const fileInput = document.getElementById("csvFile");
       const file = fileInput.files[0];
       if (!file) return alert("請選擇 CSV 檔案");
 
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const lines = e.target.result.split('\n').filter(row => row.trim());
-        const headers = lines[0].split(',');
-        const guests = lines.slice(1).map(line => {
-          const [name, email, relation, interest] = line.split(',');
-          return { name, email, relation, interest };
-        });
+      const formData = new FormData();
+      formData.append("csvFile", file);
 
-        fetch("https://wedding-api-mwk3.onrender.com/api/import-guests", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ guests })
+      fetch("https://wedding-api-mwk3.onrender.com/api/import-guests", {
+        method: "POST",
+        body: formData
+      })
+        .then(res => res.json())
+        .then(json => {
+          if (json.success) {
+            alert("✅ 匯入成功！");
+            loadGuests();
+          } else {
+            alert("❌ 匯入失敗：" + json.message);
+          }
         })
-          .then(res => res.json())
-          .then(json => {
-            if (json.success) {
-              alert("匯入成功！");
-              loadGuests();
-            } else {
-              alert("匯入失敗: " + json.message);
-            }
-          });
-      };
-      reader.readAsText(file);
+        .catch(err => {
+          console.error("❌ 錯誤：", err);
+          alert("❌ 發生錯誤，請稍後再試");
+        });
     }
 
     function loadGuests() {

@@ -223,6 +223,50 @@ app.get("/api/records", (req, res) => {
   });
 });
 
+import multer from "multer";
+import csv from "csv-parser";
+import fs from "fs";
+
+const upload = multer({ dest: "uploads/" });
+
+// ✅ 匯入 CSV 儲存至 guest 資料庫
+app.post("/api/import-guests", upload.single("csvFile"), (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, message: "未收到檔案" });
+
+  const filePath = req.file.path;
+  const guests = [];
+
+  fs.createReadStream(filePath)
+    .pipe(csv(["name", "email", "relation", "interest"]))
+    .on("data", (row) => {
+      guests.push(row);
+    })
+    .on("end", () => {
+      fs.unlinkSync(filePath); // 移除暫存檔
+
+      const sql = "INSERT INTO guest (name, email, relation, interest) VALUES ?";
+      const values = guests.map(g => [g.name, g.email, g.relation, g.interest]);
+
+      db.query(sql, [values], (err, result) => {
+        if (err) {
+          console.error("❌ 匯入失敗：", err);
+          return res.status(500).json({ success: false, message: "寫入資料庫失敗" });
+        }
+        res.json({ success: true, message: "匯入成功", count: result.affectedRows });
+      });
+    });
+});
+
+// ✅ 撈取 guest 資料
+app.get("/api/guests", (req, res) => {
+  db.query("SELECT * FROM guest ORDER BY guest_id DESC", (err, results) => {
+    if (err) {
+      console.error("❌ guest 查詢錯誤：", err);
+      return res.status(500).json({ success: false, message: "資料庫錯誤" });
+    }
+    res.json({ success: true, data: results });
+  });
+});
 
 
 // ✅ 啟動伺服器
