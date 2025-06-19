@@ -104,22 +104,42 @@ app.get("/api/venue/:id", (req, res) => {
 });
 
 // ✅ AI 喜帖產生
-app.post("/generate-wedding", async (req, res) => {
+app.post("/api/generate-invitation", async (req, res) => {
   const { groom, bride, date, place, tone } = req.body;
-  const prompt = `我們將於 ${date} 在 ${place} 舉辦婚禮。
 
-請你幫我產生一段婚禮邀請內容，語氣自然、溫馨、有情感，像是在對朋友說話，
-內容中包含新郎：${groom}，新娘：${bride}，婚禮主題是「${tone}」。
+  if (!groom || !bride || !date || !place || !tone) {
+    return res.status(400).json({ success: false, message: "缺少必要欄位" });
+  }
 
-請用口語、不要太正式。`;
+  const prompt = `
+請幫我用溫柔、自然、像在和朋友說話的方式，撰寫一段婚禮喜帖內容。
+
+新郎：${groom}
+新娘：${bride}
+婚禮日期：${date}
+地點：${place}
+婚禮風格：${tone}
+
+希望讓收件者感受到邀請誠意與溫馨氛圍，不要太正式。
+`;
+
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent(prompt);
-    const reply = result.response.candidates[0].content.parts[0].text;
-    res.json({ reply });
+    const invitation = result.response.candidates[0].content.parts[0].text;
+
+    // 儲存到 MySQL
+    const sql = `INSERT INTO invitations (groom, bride, date, place, tone, content) VALUES (?, ?, ?, ?, ?, ?)`;
+    db.query(sql, [groom, bride, date, place, tone, invitation], (err, result) => {
+      if (err) {
+        console.error("❌ 儲存失敗：", err);
+        return res.status(500).json({ success: false, message: "儲存到資料庫失敗" });
+      }
+      res.json({ success: true, invitation });
+    });
   } catch (err) {
-    console.error("Gemini API error:", err);
-    res.status(500).json({ error: "喜帖產生失敗，請稍後再試。" });
+    console.error("❌ Gemini 生成失敗：", err);
+    res.status(500).json({ success: false, message: "AI 生成錯誤" });
   }
 });
 
