@@ -32,9 +32,10 @@
       </div>
 
       <button id="uploadBtn">匯入 CSV</button>
-      <a href="/templates/guest.csv" download>
+      <a href="https://wedding-api-mwk3.onrender.com/templates/guest.csv" download>
         <button class="btn">下載模板</button>
       </a>
+
 
     </div>
 
@@ -136,7 +137,7 @@
 
   fileInput.addEventListener("change", function () {
     const fileName = this.files[0] ? this.files[0].name : " 選擇 CSV 檔案";
-    fileLabel.textContent = + fileName;
+    fileLabel.textContent = fileName;
   });
 
 
