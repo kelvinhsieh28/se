@@ -1,3 +1,4 @@
+<!-- ✅ guest.html 修改版：支援上傳 CSV 並匯入 MySQL -->
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -7,7 +8,6 @@
   <link rel="stylesheet" href="../css/guest.css" />
 </head>
 <body>
-      <!-- 導覽列 -->
   <nav class="navbar">
     <div class="nav-logo"><img src="../pic/logo.png" alt="喜帖範例圖" width="55" /></div>
     <ul class="nav-links" id="nav-links">
@@ -16,18 +16,17 @@
       <li><a href="style.html">喜帖設計</a></li>
       <li><a href="send.html">發送設定</a></li>
       <li><a href="record.html">寄送紀錄</a></li>
-      <li><a href="program_generator.html">婚禮節目表</a></li> 
-      <li><a href="venue.html">婚宴會館</a></li> 
+      <li><a href="program_generator.html">婚禮節目表</a></li>
+      <li><a href="venue.html">婚宴會館</a></li>
     </ul>
   </nav>
-  
+
   <div class="guests-container">
     <h2>賓客名單管理</h2>
-
     <div class="top-bar">
       <input type="text" id="search" placeholder="搜尋姓名或 Email..." />
-      <button>前往 CSV</button>
-      <button>匯入 CSV</button>
+      <input type="file" id="csvFile" accept=".csv" />
+      <button onclick="importCSV()">匯入 CSV</button>
     </div>
 
     <table>
@@ -35,37 +34,74 @@
         <tr>
           <th>姓名</th>
           <th>Email</th>
-          <th>寄送狀態</th>
+          <th>關係</th>
+          <th>興趣</th>
           <th>操作</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>王小明</td>
-          <td>ming@example.com</td>
-          <td><span class="status sent">已寄出</span></td>
-          <td>
-            <button class="edit">編輯</button>
-            <button class="delete">刪除</button>
-            <button class="confirm">檢視</button>
-          </td>
-        </tr>
-        <tr>
-          <td>陳小美</td>
-          <td>mei@example.com</td>
-          <td><span class="status pending">尚未寄出</span></td>
-          <td>
-            <button class="edit">編輯</button>
-            <button class="delete">刪除</button>
-            <button class="confirm">檢視</button>
-          </td>
-        </tr>
-        <!-- 更多收件人... -->
+      <tbody id="guestTableBody">
+        <!-- 資料由 JS 插入 -->
       </tbody>
     </table>
   </div>
+
   <div class="next-step-container">
     <button class="next-step-btn" onclick="location.href='style.html'">下一步</button>
   </div>
+
+  <script>
+    function importCSV() {
+      const fileInput = document.getElementById('csvFile');
+      const file = fileInput.files[0];
+      if (!file) return alert("請選擇 CSV 檔案");
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const lines = e.target.result.split('\n').filter(row => row.trim());
+        const headers = lines[0].split(',');
+        const guests = lines.slice(1).map(line => {
+          const [name, email, relation, interest] = line.split(',');
+          return { name, email, relation, interest };
+        });
+
+        fetch("https://wedding-api-mwk3.onrender.com/api/import-guests", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ guests })
+        })
+          .then(res => res.json())
+          .then(json => {
+            if (json.success) {
+              alert("匯入成功！");
+              loadGuests();
+            } else {
+              alert("匯入失敗: " + json.message);
+            }
+          });
+      };
+      reader.readAsText(file);
+    }
+
+    function loadGuests() {
+      fetch("https://wedding-api-mwk3.onrender.com/api/guests")
+        .then(res => res.json())
+        .then(json => {
+          const tbody = document.getElementById("guestTableBody");
+          tbody.innerHTML = "";
+          json.data.forEach(g => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${g.name}</td>
+                <td>${g.email}</td>
+                <td>${g.relation}</td>
+                <td>${g.interest}</td>
+                <td><button class="delete">刪除</button></td>
+              </tr>`;
+          });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", loadGuests);
+  </script>
 </body>
 </html>
