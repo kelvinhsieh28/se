@@ -26,9 +26,8 @@
     <div class="top-bar">
       <input type="text" id="search" placeholder="搜尋姓名或 Email..." oninput="filterTable()" />
     <div class="file-upload">
-      <label for="csvFile" class="file-upload-label">選擇 CSV 檔案</label>
+      <label for="csvFile" class="file-upload-label" id="fileLabel">選擇 CSV 檔案</label>
       <input type="file" id="csvFile" name="csvFile" accept=".csv" />
-      <div class="file-name" id="fileNameDisplay">尚未選擇檔案</div>
     </div>
 
 
@@ -125,12 +124,15 @@
 }
 
 
+
+
+
   const fileInput = document.getElementById("csvFile");
-  const fileNameDisplay = document.getElementById("fileNameDisplay");
+  const fileLabel = document.getElementById("fileLabel");
 
   fileInput.addEventListener("change", function () {
-    const fileName = this.files[0] ? this.files[0].name : "尚未選擇檔案";
-    fileNameDisplay.textContent = fileName;
+    const fileName = this.files[0] ? this.files[0].name : "📂 選擇 CSV 檔案";
+    fileLabel.textContent = "📂 " + fileName;
   });
 
 
