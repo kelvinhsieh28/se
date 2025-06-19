@@ -137,6 +137,16 @@ app.get("/api/records", (req, res) => {
   });
 });
 
+// ✅ RSVP 統計回覆人數 API
+app.get("/api/rsvp-count", (req, res) => {
+  const sql = "SELECT COUNT(*) AS count FROM rsvp WHERE attendance IN ('是', '會出席')";
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: "資料庫錯誤" });
+    res.json({ success: true, count: results[0].count });
+  });
+});
+
+
 // ✅ CSV 上傳與匯入 guest
 const upload = multer({ dest: "uploads/" });
 app.post("/api/import-guests", upload.single("csvFile"), (req, res) => {

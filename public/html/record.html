@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../css/record.css" />
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      // 讀取寄送紀錄
       fetch("https://wedding-api-mwk3.onrender.com/api/records")
         .then(res => res.json())
         .then(json => {
@@ -16,28 +17,48 @@
           tbody.innerHTML = "";
 
           let total = data.length;
-          let sent = total;
+          let sent = 0;
           let opened = 0;
 
           data.forEach(entry => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
               <td>${entry.name}</td>
-              <td>${entry.guests}</td>
-              <td>${entry.contact}</td>
-              <td>${entry.notes}</td>
               <td>${entry.attendance}</td>
+              <td>${entry.guests}</td>
+              <td>${entry.notes}</td>
+              <td>${entry.contact}</td>
               <td><button class="resend">重寄</button></td>
             `;
             tbody.appendChild(tr);
+
+            if (entry.attendance === "是" || entry.attendance === "會出席") sent++;
+            else opened++;
           });
 
-          document.querySelector("#total").innerText = `${total} 位`;
-          document.querySelector("#sent").innerText = `${sent} 封`;
+          document.querySelector("#sent").innerText = `${sent} 位`;
           document.querySelector("#opened").innerText = `${opened} 位`;
         })
         .catch(err => {
           console.error("❌ 錯誤：", err);
+        });
+
+      // 讀取總收件人數
+      fetch("https://wedding-api-mwk3.onrender.com/api/guests")
+        .then(res => res.json())
+        .then(json => {
+          const count = json.data.length;
+          document.getElementById("guestCount").textContent = count + " 人";
+        });
+
+      // 顯示已回覆人數（如果有後端支援 is_replied）
+      fetch("https://wedding-api-mwk3.onrender.com/api/rsvp-count")
+        .then(res => res.json())
+        .then(json => {
+          if (json.success) {
+            document.getElementById("sent").textContent = json.count + " 位";
+            document.getElementById("opened").textContent = "-"; // 若已回覆數獨立顯示，這格可清空或顯示剩餘
+          }
         });
     });
 
@@ -50,15 +71,6 @@
         row.style.display = (name.includes(input) || contact.includes(input)) ? "" : "none";
       });
     }
-
-    // 放在 script 裡
-    fetch("https://wedding-api-mwk3.onrender.com/api/guests")
-      .then(res => res.json())
-      .then(json => {
-        const count = json.data.length;
-        document.getElementById("guestCount").textContent = count + " 人";
-      });
-
   </script>
 </head>
 <body>
@@ -85,10 +97,11 @@
         <p id="guestCount">載入中...</p>
       </div>
 
-      <div class="card">
+      <div class="card" onclick="location.href='guest.html#rsvp'">
         <h3>已回復</h3>
-        <p id="sent">-- 封</p>
+        <p id="sent">-- 位</p>
       </div>
+
       <div class="card">
         <h3>未回覆</h3>
         <p id="opened">-- 位</p>
