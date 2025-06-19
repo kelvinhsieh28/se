@@ -50,6 +50,15 @@
         row.style.display = (name.includes(input) || contact.includes(input)) ? "" : "none";
       });
     }
+
+    // 放在 script 裡
+    fetch("https://wedding-api-mwk3.onrender.com/api/guests")
+      .then(res => res.json())
+      .then(json => {
+        const count = json.data.length;
+        document.getElementById("guestCount").textContent = count + " 人";
+      });
+
   </script>
 </head>
 <body>
@@ -71,10 +80,11 @@
     <h1>喜帖寄送系統</h1>
 
     <div class="summary">
-      <div class="card">
+      <div class="card" onclick="location.href='guest.html'">
         <h3>總收件人數</h3>
-        <p id="total">-- 位</p>
+        <p id="guestCount">載入中...</p>
       </div>
+
       <div class="card">
         <h3>已回復</h3>
         <p id="sent">-- 封</p>
