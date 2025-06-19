@@ -29,7 +29,6 @@
     #programContent {
     max-width: 700px;
     margin: 2rem auto;
-    background: rgba(255,255,255,0.95);
     padding: 2rem;
     border-radius: 20px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -75,10 +74,11 @@
     <br>
     <button class="btn" onclick="generateProgram()"><i class="fas fa-magic"></i> 生成節目表</button>
 
-    <div id="captureArea" style="display: none;">
-      <img src="../pic/wedding_bg.png" class="bg" alt="背景圖" />
+    <div id="captureArea">
+      <img src="../pic/wedding_bg.png" class="bg" />
       <div id="programContent"></div>
     </div>
+
 
     <div class="download-btn-container" id="saveButtonContainer" style="display: none;">
       <button onclick="downloadImage()" class="btn"><i class="fas fa-download"></i> 儲存節目表</button>
