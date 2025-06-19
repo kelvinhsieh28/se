@@ -188,6 +188,17 @@ app.post("/api/import-guests", upload.single("csvFile"), (req, res) => {
     });
 });
 
+app.delete("/api/guest/:id", (req, res) => {
+  const guestId = req.params.id;
+  db.query("DELETE FROM guest WHERE guest_id = ?", [guestId], (err, result) => {
+    if (err) {
+      console.error("❌ 刪除失敗：", err);
+      return res.status(500).json({ success: false, message: "資料庫錯誤" });
+    }
+    res.json({ success: true, message: "刪除成功" });
+  });
+});
+
 
 
 // ✅ 撈 guest 資料
