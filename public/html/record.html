@@ -6,41 +6,50 @@
   <title>寄送紀錄</title>
   <link rel="stylesheet" href="../css/record.css" />
   <script>
-document.addEventListener("DOMContentLoaded", () => {
-  fetch("https://wedding-api-mwk3.onrender.com/api/records")
-    .then(res => res.json())
-    .then(json => {
-      if (!json.success) throw new Error("讀取失敗");
-      const data = json.data;
-      const tbody = document.querySelector("table tbody");
-      tbody.innerHTML = "";
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("https://wedding-api-mwk3.onrender.com/api/records")
+        .then(res => res.json())
+        .then(json => {
+          if (!json.success) throw new Error("讀取失敗");
+          const data = json.data;
+          const tbody = document.querySelector("table tbody");
+          tbody.innerHTML = "";
 
-      let total = data.length;
-      let sent = total;
-      let opened = 0;
+          let total = data.length;
+          let sent = total;
+          let opened = 0;
 
-      data.forEach(entry => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${entry.name}</td>
-          <td>${entry.guest}</td>
-          <td>${entry.contact}</td>
-          <td>${entry.note}</td>
-          <td>${entry.attendance}</td>
-          <td><button class="resend">重寄</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
+          data.forEach(entry => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${entry.name}</td>
+              <td>${entry.attendance}</td>
+              <td>${entry.guests}</td>
+              <td>${entry.notes}</td>
+              <td>${entry.contact}</td>
+              <td><button class="resend">重寄</button></td>
+            `;
+            tbody.appendChild(tr);
+          });
 
-      document.querySelector(".card:nth-child(1) p").innerText = `${total} 位`;
-      document.querySelector(".card:nth-child(2) p").innerText = `${sent} 封`;
-      document.querySelector(".card:nth-child(3) p").innerText = `${opened} 位`;
-    })
-    .catch(err => {
-      console.error("❌ 錯誤：", err);
+          document.querySelector("#total").innerText = `${total} 位`;
+          document.querySelector("#sent").innerText = `${sent} 封`;
+          document.querySelector("#opened").innerText = `${opened} 位`;
+        })
+        .catch(err => {
+          console.error("❌ 錯誤：", err);
+        });
     });
-});
 
+    function filterTable() {
+      const input = document.getElementById("search").value.toLowerCase();
+      const rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const name = row.children[0].textContent.toLowerCase();
+        const contact = row.children[4].textContent.toLowerCase();
+        row.style.display = (name.includes(input) || contact.includes(input)) ? "" : "none";
+      });
+    }
   </script>
 </head>
 <body>
@@ -53,8 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
       <li><a href="style.html">喜帖設計</a></li>
       <li><a href="send.html">發送設定</a></li>
       <li><a href="record.html" class="active">寄送紀錄</a></li>
-      <li><a href="program_generator.html">婚禮節目表</a></li> 
-      <li><a href="venue.html">婚宴會館</a></li> 
+      <li><a href="program_generator.html">婚禮節目表</a></li>
+      <li><a href="venue.html">婚宴會館</a></li>
     </ul>
   </nav>
 
@@ -79,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="records-container">
       <h2>回復表單</h2>
 
-      <input type="text" id="search" placeholder="搜尋姓名或 Email..." oninput="filterTable()" />
+      <input type="text" id="search" placeholder="搜尋姓名或聯絡方式..." oninput="filterTable()" />
 
       <table>
         <thead>
@@ -89,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <th>人數</th>
             <th>飲食習慣</th>
             <th>聯絡方式</th>
-            <th>重寄</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
@@ -98,17 +107,5 @@ document.addEventListener("DOMContentLoaded", () => {
       </table>
     </div>
   </div>
-
-  <script>
-    function filterTable() {
-      const input = document.getElementById("search").value.toLowerCase();
-      const rows = document.querySelectorAll("tbody tr");
-      rows.forEach(row => {
-        const name = row.children[0].textContent.toLowerCase();
-        const email = row.children[1].textContent.toLowerCase();
-        row.style.display = (name.includes(input) || email.includes(input)) ? "" : "none";
-      });
-    }
-  </script>
 </body>
 </html>
