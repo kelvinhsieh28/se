@@ -6,47 +6,40 @@
   <title>寄送紀錄</title>
   <link rel="stylesheet" href="../css/record.css" />
   <script>
-    async function fetchRecords() {
-      try {
-        const res = await fetch("https://wedding-api-mwk3.onrender.com/api/records");
-        const data = await res.json();
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("https://wedding-api-mwk3.onrender.com/api/records")
+    .then(res => res.json())
+    .then(json => {
+      if (!json.success) throw new Error("讀取失敗");
+      const data = json.data;
+      const tbody = document.querySelector("table tbody");
+      tbody.innerHTML = "";
 
-        const tbody = document.querySelector("tbody");
-        tbody.innerHTML = "";
+      let total = data.length;
+      let sent = total;
+      let opened = 0;
 
-        data.forEach(record => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${record.name}</td>
-            <td>${record.email}</td>
-            <td><span class="status ${record.status === '已寄出' ? 'success' : 'failed'}">${record.status}</span></td>
-            <td><span class="opened ${record.opened ? '' : 'not'}">${record.opened ? '✔ 已開啟' : '✘ 未開啟'}</span></td>
-            <td><button class="resend" onclick="resendEmail('${record.email}')">重寄</button></td>
-          `;
-          tbody.appendChild(row);
-        });
-      } catch (err) {
-        console.error("資料載入失敗：", err);
-      }
-    }
+      data.forEach(entry => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${entry.name}</td>
+          <td>${entry.contact}</td>
+          <td><span class="status success">已寄出</span></td>
+          <td><span class="opened not">✘ 未開啟</span></td>
+          <td><button class="resend">重寄</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
 
-    async function resendEmail(email) {
-      try {
-        const res = await fetch("https://wedding-api-mwk3.onrender.com/api/resend", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email })
-        });
-        const result = await res.json();
-        alert(result.message || "已嘗試重寄郵件");
-        fetchRecords();
-      } catch (err) {
-        console.error("重寄失敗：", err);
-        alert("重寄時發生錯誤");
-      }
-    }
+      document.querySelector(".card:nth-child(1) p").innerText = `${total} 位`;
+      document.querySelector(".card:nth-child(2) p").innerText = `${sent} 封`;
+      document.querySelector(".card:nth-child(3) p").innerText = `${opened} 位`;
+    })
+    .catch(err => {
+      console.error("❌ 錯誤：", err);
+    });
+});
 
-    window.addEventListener("DOMContentLoaded", fetchRecords);
   </script>
 </head>
 <body>
