@@ -138,23 +138,37 @@ app.get("/api/records", (req, res) => {
 const upload = multer({ dest: "uploads/" });
 app.post("/api/import-guests", upload.single("csvFile"), (req, res) => {
   if (!req.file) return res.status(400).json({ success: false, message: "未收到檔案" });
+
   const filePath = req.file.path;
   const guests = [];
+  let isFirstRow = true;
+
   fs.createReadStream(filePath)
     .pipe(csv(["name", "email", "relation", "interest"]))
     .on("data", (row) => {
+      // ✅ 跳過第一列標題
+      if (isFirstRow && row.name === "name" && row.email === "email") {
+        isFirstRow = false;
+        return;
+      }
       if (row.name && row.email) guests.push(row);
     })
     .on("end", () => {
-      fs.unlinkSync(filePath);
+      fs.unlinkSync(filePath); // 刪掉暫存檔
+
       const sql = "INSERT INTO guest (name, email, relation, interest) VALUES ?";
       const values = guests.map(g => [g.name, g.email, g.relation, g.interest]);
+
       db.query(sql, [values], (err, result) => {
-        if (err) return res.status(500).json({ success: false, message: "寫入資料庫失敗" });
+        if (err) {
+          console.error("❌ 寫入錯誤：", err);
+          return res.status(500).json({ success: false, message: "寫入資料庫失敗" });
+        }
         res.json({ success: true, message: "匯入成功", count: result.affectedRows });
       });
     });
 });
+
 
 // ✅ 撈 guest 資料
 app.get("/api/guests", (req, res) => {
