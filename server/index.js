@@ -188,6 +188,7 @@ app.post("/api/import-guests", upload.single("csvFile"), (req, res) => {
     });
 });
 
+// ✅ 刪除單筆 guest 資料
 app.delete("/api/guest/:id", (req, res) => {
   const guestId = req.params.id;
   db.query("DELETE FROM guest WHERE guest_id = ?", [guestId], (err, result) => {
