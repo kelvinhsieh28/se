@@ -216,7 +216,7 @@ app.get("/api/guests", (req, res) => {
 // ✅ 節目表
 app.post("/api/generate-program", async (req, res) => {
   const { style } = req.body;
-  const sql = "SELECT interest FROM guests";
+  const sql = "SELECT interest FROM guest";
 
   db.query(sql, async (err, results) => {
     if (err) return res.status(500).json({ success: false, message: "資料庫錯誤" });
