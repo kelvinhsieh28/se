@@ -5,16 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>喜帖樣式編輯</title>
   <link rel="stylesheet" href="../css/style.css" />
-  <style>
-    .preview-box {
-      background: #fff;
-      border-radius: 12px;
-      padding: 2rem;
-      margin-top: 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      white-space: pre-wrap;
-    }
-  </style>
 </head>
 <body>
   <!-- 導覽列 -->
@@ -58,7 +48,7 @@
     </form>
 
     <h3>AI 喜帖內容</h3>
-    <div id="result" class="preview-box" style="display: none;"></div>
+    <div id="result" class="preview-box">（這裡會顯示產生的內容）</div>
 
     <h3>預覽結果</h3>
     <div id="preview-box" class="preview-box">
@@ -86,26 +76,31 @@
 
   <script>
     async function generateInvite() {
-      const groom = document.getElementById("groom").value;
-      const bride = document.getElementById("bride").value;
-      const date = document.getElementById("date").value;
-      const place = document.getElementById("place").value;
-      const tone = document.getElementById("tone").value;
+    const groom = document.getElementById("groom").value;
+    const bride = document.getElementById("bride").value; // 或改成你要的固定值
+    const date = document.getElementById("date").value;  // 預設值或可取用 input 欄
+    const place = document.getElementById("place").value;  // 同上
+    const tone = document.getElementById("tone")?.value || "典雅感性";
 
-      const res = await fetch("https://wedding-api-mwk3.onrender.com/api/generate-invitation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ groom, bride, date, place, tone })
-      });
+    const res = await fetch("http://localhost:3001/generate-wedding", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ groom, bride, date, place, tone })
+    });
 
-      const data = await res.json();
-      const result = data.invitation || "⚠️ 發生錯誤，請稍後再試。";
+    const data = await res.json();
+    const result = data.reply || "⚠️ 發生錯誤，請稍後再試。";
 
-      document.getElementById("result").innerText = result;
-      document.getElementById("result").style.display = "block";
-      document.getElementById("invitation-text").innerText = result;
-      document.getElementById("batch-preview-text").innerText = result;
-    }
+    // 顯示在 AI 區塊
+    document.getElementById("result").innerText = result;
+
+    // ✅ 顯示在預覽喜帖
+    document.getElementById("invitation-text").innerText = result;
+
+    // ✅ 若需要也同步顯示在單人批次預覽，可加這一行
+    document.getElementById("batch-preview-text").innerText = result;
+  }
+
 
     function updateTemplateImage() {
       const selected = document.getElementById('tone').value;
@@ -154,8 +149,22 @@
       singlePreview.style.display = 'none';
     }
 
+    async function saveInvitationImage(guestId, elementId) {
+  const element = document.getElementById(elementId);
+
+  const canvas = await html2canvas(element);
+  const base64Image = canvas.toDataURL("image/png");
+
+  await fetch("/api/save-invitation-image", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ guestId, image: base64Image })
+  });
+}
+
+
     function showGuestPreview(guest) {
-      const content = document.getElementById('invitation-text').innerText;
+      const content = document.getElementById('content').value;
       const replaced = content
         .replace(/{name}/g, guest.name)
         .replace(/{date}/g, guest.date);
@@ -163,9 +172,9 @@
       const selected = document.getElementById('tone').value;
 
       const templateImgMap = {
-        '簡約浪漫風': '../pic/card01.jpg',
-        '綠意信箋': '../pic/card02.jpg',
-        '喜悅滿堂': '../pic/card03.jpg'
+        classic: '../pic/card01.jpg',
+        gold: '../pic/card02.jpg',
+        simple: '../pic/card03.jpg'
       };
 
       const imgSrc = templateImgMap[selected] || '';
@@ -182,6 +191,7 @@
 
     window.onload = () => {
       updateTemplateImage();
+      generatePreview();
     }
   </script>
 </body>
