@@ -164,37 +164,34 @@
     background-color: #1abc9c;
   }
   
-  .file-upload {
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-}
 
-.file-upload input[type="file"] {
-  font-size: 100px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
+.file-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .file-upload-label {
-  display: inline-block;
-  padding: 0.7rem 1.5rem;
   background-color: #ff6b81;
   color: white;
+  padding: 0.7rem 1.2rem;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.95rem;
-  transition: background-color 0.3s;
+  display: inline-block;
+  transition: background-color 0.2s;
+  margin-bottom: 0.5rem;
 }
 
 .file-upload-label:hover {
   background-color: #ff4757;
 }
 
+.file-upload input[type="file"] {
+  display: none;
+}
+
 .file-name {
-  margin-top: 0.5rem;
   font-size: 0.95rem;
   color: #555;
   font-style: italic;
