@@ -23,9 +23,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${entry.name}</td>
+          <td>${entry.guest}</td>
           <td>${entry.contact}</td>
-          <td><span class="status success">已寄出</span></td>
-          <td><span class="opened not">✘ 未開啟</span></td>
+          <td>${entry.note}</td>
+          <td>${entry.attendance}</td>
           <td><button class="resend">重寄</button></td>
         `;
         tbody.appendChild(tr);
@@ -76,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
 
     <div class="records-container">
-      <h2>寄送紀錄與追蹤</h2>
+      <h2>回復表單</h2>
 
       <input type="text" id="search" placeholder="搜尋姓名或 Email..." oninput="filterTable()" />
 
@@ -84,10 +85,10 @@ document.addEventListener("DOMContentLoaded", () => {
         <thead>
           <tr>
             <th>姓名</th>
-            <th>Email</th>
-            <th>狀態</th>
-            <th>是否開啟</th>
-            <th>操作</th>
+            <th>出席</th>
+            <th>人數</th>
+            <th>飲食習慣</th>
+            <th>聯絡方式</th>
           </tr>
         </thead>
         <tbody>
