@@ -228,14 +228,16 @@ app.post("/api/generate-program", async (req, res) => {
 
     const interests = [...interestSet].join("、");
 
-    const prompt = `
-請根據以下婚禮風格與賓客興趣，幫我生成一份對應的婚禮節目流程表，使用時間軸格式：
+ const prompt = `
+請根據以下婚禮風格與賓客興趣，幫我生成一份對應的婚禮節目流程表，使用時間軸格式。
 
 婚禮風格：${style}
 賓客興趣：${interests}
 
 請務必以 13:00 開始、每半小時一個節目為主，並展現風格與興趣的結合，語氣溫馨自然。
+⚠️ 請用 HTML <table> 產出節目表，時間與節目分成兩欄，文字不要超過寬度。
 `;
+
 
     try {
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
