@@ -60,7 +60,7 @@
       </div>
     </div>    
 
-    <button type="button" id="batch-generate-btn">批量生產</button>
+    <button type="button" id="batch-generate-btn" onclick="generateBatch()">批量生產</button>
 
     <h3>批量喜帖預覽</h3>
     <div id="guest-buttons" class="guest-buttons"></div>
@@ -125,30 +125,42 @@
       img.style.display = imgSrc ? 'block' : 'none';
     }
 
-    function generateBatch() {
-      const guestButtonsContainer = document.getElementById('guest-buttons');
-      guestButtonsContainer.innerHTML = '';
+    async function generateBatch() {
+        const groom = document.getElementById("groom").value;
+        const bride = document.getElementById("bride").value;
+        const date = document.getElementById("date").value;
+        const place = document.getElementById("place").value;
+        const tone = document.getElementById("tone").value;
 
-      const guests = [
-        { name: '王小明', date: '2025年12月20日' },
-        { name: '陳小美', date: '2025年12月20日' },
-        { name: '李大華', date: '2025年12月20日' },
-      ];
+        const res = await fetch("/api/batch-generate-invitations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ groom, bride, date, place, tone })
+        });
 
-      guests.forEach(guest => {
-        const btn = document.createElement('button');
-        btn.className = 'guest-btn';
-        btn.innerText = guest.name;
-        btn.addEventListener('click', () => showGuestPreview(guest));
-        guestButtonsContainer.appendChild(btn);
-      });
+        const guests = await res.json();
 
-      document.getElementById('batch-preview').innerHTML = '';
-      document.getElementById('batch-preview').style.display = 'none';
-      const singlePreview = document.getElementById('batch-single-preview');
-      singlePreview.style.display = 'none';
-    }
+        for (const guest of guests) {
+          document.getElementById("invitation-text").innerText = guest.invitation_text;
+          await html2canvas(document.getElementById("invitation-card"))
+            .then(async canvas => {
+              const image = canvas.toDataURL("image/png");
+              await fetch("/api/save-invitation-image", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ guestId: guest.guest_id, image })
+              });
+            });
+        }
+        alert("已完成批量生成並儲存圖片到資料庫！");
+      }
 
+      document.getElementById('tone').addEventListener('change', updateTemplateImage);
+      document.getElementById('batch-generate-btn').addEventListener('click', generateBatch);
+
+      window.onload = () => {
+        updateTemplateImage();
+      }
     async function saveInvitationImage(guestId, elementId) {
   const element = document.getElementById(elementId);
 
