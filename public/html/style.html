@@ -77,9 +77,9 @@
   <script>
     async function generateInvite() {
     const groom = document.getElementById("groom").value;
-    const bride = "（此頁未輸入，請於AI欄位補入）"; // 或改成你要的固定值
-    const date = "2025年12月20日";  // 預設值或可取用 input 欄
-    const place = "台北晶華酒店";  // 同上
+    const bride = document.getElementById("bride").value; // 或改成你要的固定值
+    const date = document.getElementById("date").value;  // 預設值或可取用 input 欄
+    const place = document.getElementById("place").value;  // 同上
     const tone = document.getElementById("tone")?.value || "典雅感性";
 
     const res = await fetch("http://localhost:3001/generate-wedding", {

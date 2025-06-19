@@ -4,10 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>婚禮節目表生成器</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap">
   <link rel="stylesheet" href="../css/index.css" />
   <link rel="stylesheet" href="../css/program.css" />
-  <!-- 引入 html2canvas -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: 'Noto Serif TC', serif;
+    }
+    #programContent {
+      padding: 2rem;
+      text-align: left;
+      white-space: pre-wrap;
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+    select {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
@@ -18,51 +37,59 @@
       <li><a href="style.html">喜帖設計</a></li>
       <li><a href="send.html">發送設定</a></li>
       <li><a href="record.html">寄送紀錄</a></li>
-      <li><a href="program_generator.html"class="active">婚禮節目表</a></li> 
-      <li><a href="venue.html">婚宴會館</a></li> 
+      <li><a href="program_generator.html" class="active">婚禮節目表</a></li>
+      <li><a href="venue.html">婚宴會館</a></li>
     </ul>
   </nav>
 
- <div class="program-container">
-    <h1>婚禮節目表生成器</h1>
-    <p>請輸入你的婚禮風格與興趣，生成專屬流程表：</p>
-    <input type="text" id="styleInput" placeholder="婚禮風格（例：文青、浪漫、復古）">
-    <input type="text" id="interestInput" placeholder="興趣（例：爵士樂、露營、貓狗）">
+  <div class="program-container">
+    <h1><i class="fas fa-heart"></i> 婚禮節目表生成器</h1>
+    <p>請選擇你的婚禮風格，系統會根據賓客興趣與風格自動生成節目表：</p>
+    <select id="styleInput">
+      <option value="文青">文青</option>
+      <option value="浪漫">浪漫</option>
+      <option value="復古">復古</option>
+      <option value="戶外">戶外</option>
+      <option value="溫馨">溫馨</option>
+    </select>
     <br>
-    <button class="btn" onclick="generateProgram()">生成節目表</button>
+    <button class="btn" onclick="generateProgram()"><i class="fas fa-magic"></i> 生成節目表</button>
 
-    <!-- ✅ 包含背景圖的節目表區塊 -->
     <div id="captureArea" style="display: none;">
       <img src="../pic/wedding_bg.png" class="bg" alt="背景圖" />
       <div id="programContent"></div>
     </div>
 
     <div class="download-btn-container" id="saveButtonContainer" style="display: none;">
-      <button onclick="downloadImage()" class="btn">儲存節目表</button>
+      <button onclick="downloadImage()" class="btn"><i class="fas fa-download"></i> 儲存節目表</button>
     </div>
   </div>
 
 <script>
   function generateProgram() {
-    const style = document.getElementById("styleInput").value.trim();
-    const interest = document.getElementById("interestInput").value.trim();
+    const style = document.getElementById("styleInput").value;
+    if (!style) return alert("請選擇婚禮風格");
 
-    const content = `
-      <h2>你的專屬婚禮節目表</h2>
-      <ul>
-        <li>13:00 - 賓客進場，現場佈置為「${style}」風格</li>
-        <li>13:30 - 音樂演奏開場（搭配 ${interest} 主題）</li>
-        <li>14:00 - 新人進場＆主題介紹</li>
-        <li>14:30 - 主題互動遊戲（${interest} 風格橋段）</li>
-        <li>15:00 - 餐宴開始（場地設計以 ${style} 為靈感）</li>
-        <li>16:30 - 新人致詞＆分享愛情故事</li>
-        <li>17:00 - 抽獎環節（${interest} 驚喜禮物）</li>
-        <li>18:00 - 賓客送客，結束精彩的一天</li>
-      </ul>
-    `;
-    document.getElementById("programContent").innerHTML = content;
-    document.getElementById("captureArea").style.display = "block";
-    document.getElementById("saveButtonContainer").style.display = "block";
+    fetch("https://wedding-api-mwk3.onrender.com/api/generate-program", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ style })
+    })
+    .then(res => res.json())
+    .then(json => {
+      if (!json.success) return alert("產生失敗：" + json.message);
+
+      document.getElementById("programContent").innerHTML = `
+        <h2><i class="fas fa-scroll"></i> 你的專屬婚禮節目表</h2>
+        <pre>${json.program}</pre>
+      `;
+      document.getElementById("captureArea").style.display = "block";
+      document.getElementById("saveButtonContainer").style.display = "block";
+    })
+    .catch(err => {
+      console.error("❌ 錯誤：", err);
+      alert("發生錯誤，請稍後再試");
+    });
   }
 
   function downloadImage() {
