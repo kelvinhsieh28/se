@@ -264,7 +264,7 @@ app.post("/api/save-invitation-image", (req, res) => {
     return res.status(400).json({ success: false, message: "缺少必要資料" });
   }
 
-  const sql = "UPDATE guests SET image = ? WHERE guest_id = ?";
+  const sql = "UPDATE guest SET image = ? WHERE guest_id = ?";
   db.query(sql, [image, guestId], (err, result) => {
     if (err) {
       console.error("❌ 儲存圖片失敗：", err);
