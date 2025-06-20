@@ -315,6 +315,9 @@ app.post("/api/batch-generate-invitations", async (req, res) => {
 
 // ✅ 正確版本：封裝寄送喜帖 Email（含圖片與 Gmail 認證）
 function sendEmail(to, subject, imageDataUrl, senderName) {
+  const base64Data = imageDataUrl.replace(/^data:image\/\w+;base64,/, "");
+  const buffer = Buffer.from(base64Data, 'base64');
+
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -329,21 +332,28 @@ function sendEmail(to, subject, imageDataUrl, senderName) {
     subject: subject,
     html: `
       <div style="font-family:Arial,sans-serif;text-align:center;">
-        <p style="margin-bottom: 1rem;">親愛的賓客您好，請查看以下喜帖：</p>
-        <img src="${imageDataUrl}" alt="婚禮邀請喜帖" style="max-width:100%; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);" />
-        <p style="margin-top: 1rem;">期待您蒞臨 ❤️</p>
+        <p>親愛的賓客您好，請查看以下喜帖：</p>
+        <img src="cid:invitation_image" style="max-width:100%; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);" />
+        <p>這是統計表單，再麻煩填一下:https://docs.google.com/forms/d/e/1FAIpQLScJs2K1DkUXSv0vr-o0ZydZ1u2vVUr8M0VnQSxQ4cKIIArF0g/viewform</p>  
+        <p>期待您蒞臨 ❤️</p>
       </div>
-    `
+    `,
+    attachments: [
+      {
+        filename: 'invitation.jpg',
+        content: buffer,
+        encoding: 'base64',
+        cid: 'invitation_image'  // 👈 HTML 裡會對應這個 ID
+      }
+    ]
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error(`❌ 寄送失敗給 ${to}：`, error);
-    } else {
-      console.log(`✅ 已成功寄給 ${to}：`, info.response);
-    }
+    if (error) console.error(`❌ ${to} 寄送失敗:`, error);
+    else console.log(`✅ 寄給 ${to} 成功: ${info.response}`);
   });
 }
+
 
 
 app.post('/send-invitations', async (req, res) => {
