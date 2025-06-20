@@ -8,7 +8,6 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
-  <!-- 導覽列 -->
   <nav class="navbar">
     <div class="nav-logo"><img src="../pic/logo.png" alt="喜帖範例圖" width="55" /></div>
     <ul class="nav-links" id="nav-links">
@@ -24,7 +23,6 @@
 
   <div class="design-container">
     <h2>喜帖樣式選擇及預覽</h2>
-
     <form id="design-form">
       <label for="tone">選擇樣式模板</label>
       <select id="tone">
@@ -62,14 +60,8 @@
   </div>
 
   <h3 style="padding: 1rem">所有賓客喜帖圖片預覽</h3>
-  <div id="card-grid" style="
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    padding: 1rem;
-  "></div>
+  <div id="card-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; padding: 1rem;"></div>
 
-  <!-- ✅ JavaScript 區塊 -->
   <script>
     async function generateInvite() {
       const groom = document.getElementById("groom").value;
@@ -78,15 +70,14 @@
       const place = document.getElementById("place").value;
       const tone = document.getElementById("tone").value;
 
-      const response = await fetch("/generate-wedding", {
+      const response = await fetch("https://wedding-api-mwk3.onrender.com/generate-wedding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ groom, bride, date, place, tone })
       });
 
       const data = await response.json();
-      const result = data.reply || "⚠️ 發生錯誤，請稍後再試。";
-      document.getElementById("invitation-text").innerText = result;
+      document.getElementById("invitation-text").innerText = data.reply || "⚠️ 發生錯誤，請稍後再試。";
     }
 
     function updateTemplateImage() {
@@ -95,17 +86,10 @@
 
       let imgSrc = '';
       switch (selected) {
-        case '簡約浪漫風':
-          imgSrc = '../pic/card01.jpg';
-          break;
-        case '綠意信箋':
-          imgSrc = '../pic/card02.jpg';
-          break;
-        case '喜悅滿堂':
-          imgSrc = '../pic/card03.jpg';
-          break;
-        default:
-          imgSrc = '';
+        case '簡約浪漫風': imgSrc = '../pic/card01.jpg'; break;
+        case '綠意信箋': imgSrc = '../pic/card02.jpg'; break;
+        case '喜悅滿堂': imgSrc = '../pic/card03.jpg'; break;
+        default: imgSrc = '';
       }
 
       img.src = imgSrc;
@@ -117,38 +101,36 @@
       const bride = document.getElementById("bride").value;
       const date = document.getElementById("date").value;
       const place = document.getElementById("place").value;
-      const tone = document.getElementById("tone").value;
+      const toneBase = document.getElementById("tone").value;
 
-      const res = await fetch("/api/batch-generate-invitations", {
+      const res = await fetch("https://wedding-api-mwk3.onrender.com/api/batch-generate-invitations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ groom, bride, date, place, tone })
+        body: JSON.stringify({ groom, bride, date, place, tone: toneBase })
       });
 
       const guests = await res.json();
-      if (!Array.isArray(guests)) return alert("回傳格式錯誤！");
-
       for (const guest of guests) {
         document.getElementById("invitation-text").innerText = guest.invitation_text;
-        await html2canvas(document.getElementById("invitation-card"))
-          .then(async canvas => {
-            const image = canvas.toDataURL("image/png");
-            await fetch("/api/save-invitation-image", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ guestId: guest.guest_id, image })
-            });
+
+        await html2canvas(document.getElementById("invitation-card")).then(async canvas => {
+          const image = canvas.toDataURL("image/png");
+
+          await fetch("https://wedding-api-mwk3.onrender.com/api/save-invitation-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ guestId: guest.guest_id, image })
           });
+        });
       }
 
-      alert("✅ 已完成批量生成並儲存圖片到資料庫！");
+      alert("✅ 批量生成完成！");
       await loadGuestImages();
     }
 
     async function loadGuestImages() {
-      const res = await fetch("/api/guests");
-      const { success, data } = await res.json();
-      if (!success) return alert("載入 guest 圖片失敗");
+      const res = await fetch("https://wedding-api-mwk3.onrender.com/api/guests");
+      const { data } = await res.json();
 
       const grid = document.getElementById("card-grid");
       grid.innerHTML = "";

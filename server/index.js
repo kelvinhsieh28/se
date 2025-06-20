@@ -25,23 +25,13 @@ app.use(express.urlencoded({ extended: true })); // ✅ 加上這一行來支援
 app.use(express.static(path.join(__dirname, "../public")));
 app.use('/templates', express.static(path.join(__dirname, 'public/templates')));
 
-
-// 建立 Railway 雲端資料庫連線
-export const remoteDB = mysql.createConnection({
-  host: process.env.RAILWAY_DB_HOST,
-  port: process.env.RAILWAY_DB_PORT,
-  user: process.env.RAILWAY_DB_USER,
-  password: process.env.RAILWAY_DB_PASSWORD,
-  database: process.env.RAILWAY_DB_NAME,
-});
-
-// 建立本地資料庫連線
-export const localDB = mysql.createConnection({
-  host: process.env.LOCAL_DB_HOST,
-  port: process.env.LOCAL_DB_PORT,
-  user: process.env.LOCAL_DB_USER,
-  password: process.env.LOCAL_DB_PASSWORD,
-  database: process.env.LOCAL_DB_NAME,
+// ✅ 資料庫連線
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -265,58 +255,31 @@ app.post("/api/generate-program", async (req, res) => {
   });
 });
 
+// ✅ 圖片上傳並儲存 base64 到本地 /public/images
 app.post("/api/save-invitation-image", (req, res) => {
   const { guestId, image } = req.body;
-
   if (!guestId || !image) {
     return res.status(400).json({ success: false, message: "缺少必要資料" });
   }
+  const base64Data = image.replace(/^data:image\/png;base64,/, "");
+  const fileName = `invitation_${guestId}.png`;
+  const filePath = path.join(__dirname, "../public/images", fileName);
 
-  const sql = "UPDATE guest SET image = ? WHERE guest_id = ?";
-  db.query(sql, [image, guestId], (err, result) => {
+  fs.writeFile(filePath, base64Data, 'base64', err => {
     if (err) {
       console.error("❌ 儲存圖片失敗：", err);
-      return res.status(500).json({ success: false, message: "資料庫寫入失敗" });
+      return res.status(500).json({ success: false, message: "圖片儲存失敗" });
     }
-    res.json({ success: true });
-  });
-});
-
-app.post("/api/batch-generate-invitations", async (req, res) => {
-  try {
-    const { groom, bride, date, place, tone } = req.body;
-
-    db.query("SELECT guest_id, name, relation, interest FROM guest", async (err, guests) => {
-      if (err) {
-        console.error("❌ 讀取 guest 失敗：", err);
-        return res.status(500).json({ success: false, message: "資料庫錯誤" });
+    const imagePath = `/images/${fileName}`;
+    const sql = "UPDATE guest SET image = ? WHERE guest_id = ?";
+    db.query(sql, [imagePath, guestId], (err2) => {
+      if (err2) {
+        console.error("❌ 寫入資料庫失敗：", err2);
+        return res.status(500).json({ success: false, message: "資料庫寫入失敗" });
       }
-
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const results = [];
-
-      for (const guest of guests) {
-        const prompt = `幫我用${tone}風格寫一封婚禮邀請，邀請${guest.relation}${guest.name}，
-${groom}與${bride}將於${date}在${place}舉行婚禮，根據對方對「${guest.interest || '無興趣'}」的興趣加入個人化語氣，內容口語溫馨。`;
-
-        try {
-          const reply = await model.generateContent(prompt);
-          const text = reply.response.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ 產生失敗";
-
-          // ❌ 不儲存 invitation_text，僅回傳給前端渲染
-          results.push({ guest_id: guest.guest_id, invitation_text: text });
-        } catch (innerErr) {
-          console.error(`❌ guest_id ${guest.guest_id} 的生成錯誤：`, innerErr);
-          results.push({ guest_id: guest.guest_id, invitation_text: "⚠️ 生成失敗" });
-        }
-      }
-
-      res.json(results);
+      res.json({ success: true });
     });
-  } catch (outerErr) {
-    console.error("❌ 外部錯誤：", outerErr);
-    res.status(500).json({ success: false, message: "批量生成失敗" });
-  }
+  });
 });
 
 // ✅ 啟動伺服器
