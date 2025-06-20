@@ -256,30 +256,20 @@ app.post("/api/generate-program", async (req, res) => {
   });
 });
 
-// ✅ 圖片上傳並儲存 base64 到本地 /public/images
+// ✅ 直接把 base64 存進資料庫，不存實體圖檔
 app.post("/api/save-invitation-image", (req, res) => {
   const { guestId, image } = req.body;
   if (!guestId || !image) {
     return res.status(400).json({ success: false, message: "缺少必要資料" });
   }
-  const base64Data = image.replace(/^data:image\/png;base64,/, "");
-  const fileName = `invitation_${guestId}.png`;
-  const filePath = path.join(__dirname, "../public/images", fileName);
 
-  fs.writeFile(filePath, base64Data, 'base64', err => {
+  const sql = "UPDATE guest SET image = ? WHERE guest_id = ?";
+  db.query(sql, [image, guestId], (err) => {
     if (err) {
-      console.error("❌ 儲存圖片失敗：", err);
-      return res.status(500).json({ success: false, message: "圖片儲存失敗" });
+      console.error("❌ 資料庫寫入失敗：", err); // 這裡會印出錯誤
+      return res.status(500).json({ success: false, message: "資料庫錯誤" });
     }
-    const imagePath = `/images/${fileName}`;
-    const sql = "UPDATE guest SET image = ? WHERE guest_id = ?";
-    db.query(sql, [imagePath, guestId], (err2) => {
-      if (err2) {
-        console.error("❌ 寫入資料庫失敗：", err2);
-        return res.status(500).json({ success: false, message: "資料庫寫入失敗" });
-      }
-      res.json({ success: true });
-    });
+    res.json({ success: true });
   });
 });
 
