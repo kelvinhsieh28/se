@@ -191,8 +191,8 @@ app.post("/api/import-guests", upload.single("csvFile"), (req, res) => {
         return res.status(400).json({ success: false, message: "無有效資料" });
       }
 
-      const sql = "INSERT INTO guest (name, email, relation, interest) VALUES ?";
-      const values = guests.map(g => [g.name, g.email, g.relation, g.interest]);
+      const sql = "INSERT INTO guest (name, email, relation, interest, image) VALUES ?";
+      const values = guests.map(g => [g.name, g.email, g.relation, g.interest,'']);
 
       db.query(sql, [values], (err, result) => {
         if (err) {
@@ -215,8 +215,6 @@ app.delete("/api/guest/:id", (req, res) => {
     res.json({ success: true, message: "刪除成功" });
   });
 });
-
-
 
 // ✅ 撈 guest 資料
 app.get("/api/guests", (req, res) => {
