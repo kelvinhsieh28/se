@@ -311,8 +311,6 @@ ${groom}與${bride}將於${date}在${place}舉行婚禮，根據對方對「${gu
   }
 });
 
-
-
 // ✅ 啟動伺服器
 app.listen(port, () => {
   console.log(`🤖 Gemini機器人打開摟 at http://localhost:${port}`);
