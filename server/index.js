@@ -26,14 +26,22 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use('/templates', express.static(path.join(__dirname, 'public/templates')));
 
 
+// 建立 Railway 雲端資料庫連線
+export const remoteDB = mysql.createConnection({
+  host: process.env.RAILWAY_DB_HOST,
+  port: process.env.RAILWAY_DB_PORT,
+  user: process.env.RAILWAY_DB_USER,
+  password: process.env.RAILWAY_DB_PASSWORD,
+  database: process.env.RAILWAY_DB_NAME,
+});
 
-// ✅ 資料庫連線
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+// 建立本地資料庫連線
+export const localDB = mysql.createConnection({
+  host: process.env.LOCAL_DB_HOST,
+  port: process.env.LOCAL_DB_PORT,
+  user: process.env.LOCAL_DB_USER,
+  password: process.env.LOCAL_DB_PASSWORD,
+  database: process.env.LOCAL_DB_NAME,
 });
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
