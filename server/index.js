@@ -282,6 +282,38 @@ app.post("/api/save-invitation-image", (req, res) => {
   });
 });
 
+// ✅ 批次產生邀請文字（不儲存，只回傳給前端）
+app.post("/api/batch-generate-invitations", async (req, res) => {
+  const { groom, bride, date, place, tone } = req.body;
+
+  db.query("SELECT guest_id, name, relation, interest FROM guest", async (err, guests) => {
+    if (err) {
+      console.error("❌ 讀取 guest 失敗：", err);
+      return res.status(500).json({ success: false, message: "資料庫錯誤" });
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const results = [];
+
+    for (const guest of guests) {
+      const customTone = `${guest.name} 是我親愛的 ${guest.relation}，他喜歡 ${guest.interest}。請幫我用 ${tone} 風格撰寫溫馨口語化的婚禮邀請。婚禮由 ${groom} 與 ${bride} 於 ${date} 在 ${place} 舉辦。`;
+
+      try {
+        const reply = await model.generateContent(customTone);
+        const text = reply.response.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ 生成失敗";
+
+        results.push({ guest_id: guest.guest_id, invitation_text: text });
+      } catch (err) {
+        console.error("❌ 生成錯誤：", err);
+        results.push({ guest_id: guest.guest_id, invitation_text: "⚠️ 生成失敗" });
+      }
+    }
+
+    res.json(results);
+  });
+});
+
+
 // ✅ 啟動伺服器
 app.listen(port, () => {
   console.log(`🤖 Gemini機器人打開摟 at http://localhost:${port}`);
