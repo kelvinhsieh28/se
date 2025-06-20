@@ -85,7 +85,7 @@
         const option = document.getElementById('send-time-option').value;
         const sendTime = option === 'schedule' ? document.getElementById('send-time').value : null;
 
-        const res = await fetch("https://wedding-api-mwk3.onrender.com/api/send-invitations", {
+        const res = await fetch("https://wedding-api-mwk3.onrender.com/send-invitations", {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sender, subject, sendTime })
