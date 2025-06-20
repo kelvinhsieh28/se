@@ -283,7 +283,7 @@ app.post("/api/save-invitation-image", (req, res) => {
   });
 });
 
-<<<<<<< HEAD
+
 // ✅ 批次產生邀請文字（不儲存，只回傳給前端）
 app.post("/api/batch-generate-invitations", async (req, res) => {
   const { groom, bride, date, place, tone } = req.body;
@@ -315,7 +315,6 @@ app.post("/api/batch-generate-invitations", async (req, res) => {
   });
 });
 
-=======
 app.post('/send-invitations', async (req, res) => {
   const { sender, subject, sendTime } = req.body;
 
@@ -357,7 +356,7 @@ function sendEmail(to, subject, content, senderName) {
   });
 }
 
->>>>>>> c685fc1 (安裝 multer 與 csv-parser 支援 CSV 上傳)
+
 
 // ✅ 啟動伺服器
 app.listen(port, () => {
