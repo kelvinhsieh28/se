@@ -274,6 +274,47 @@ app.post("/api/save-invitation-image", (req, res) => {
   });
 });
 
+// ✅ 批量產生喜帖內容
+app.post("/api/batch-generate-invitations", async (req, res) => {
+  const { groom, bride, date, place, tone } = req.body;
+
+  const sql = "SELECT guest_id, name, relation, interest FROM guest";
+  db.query(sql, async (err, guests) => {
+    if (err) {
+      console.error("❌ 讀取 guest 失敗：", err);
+      return res.status(500).json({ success: false, message: "資料庫錯誤" });
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const results = [];
+
+    for (const guest of guests) {
+      const prompt = `幫我用${tone}風格寫一封婚禮邀請，邀請${guest.relation}${guest.name}，
+${groom}與${bride}將於${date}在${place}舉行婚禮，根據對方對「${guest.interest}」的興趣加入個人化語氣，內容口語溫馨。`;
+
+      try {
+        const reply = await model.generateContent(prompt);
+        const text = reply.response.candidates[0].content.parts[0].text;
+
+        await new Promise((resolve, reject) => {
+          db.query(
+            "UPDATE guest SET invitation_text = ? WHERE guest_id = ?",
+            [text, guest.guest_id],
+            (e) => e ? reject(e) : resolve()
+          );
+        });
+
+        results.push({ guest_id: guest.guest_id, invitation_text: text });
+      } catch (e) {
+        console.error("❌ 生成失敗 guest_id:", guest.guest_id, e);
+      }
+    }
+
+    res.json(results); // 回傳給前端處理圖片儲存
+  });
+});
+
+
 // ✅ 啟動伺服器
 app.listen(port, () => {
   console.log(`🤖 Gemini機器人打開摟 at http://localhost:${port}`);
