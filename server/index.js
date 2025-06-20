@@ -288,7 +288,7 @@ app.post("/api/batch-generate-invitations", async (req, res) => {
     const results = [];
 
     for (const guest of guests) {
-      const customTone = `${guest.name} 是我親愛的 ${guest.relation}，他喜歡 ${guest.interest}。請幫我用 ${tone} 風格撰寫溫馨口語化的婚禮邀請。婚禮由 ${groom} 與 ${bride} 於 ${date} 在 ${place} 舉辦。`;
+      const customTone = `${guest.name} 是我親愛的 ${guest.relation}，他喜歡 ${guest.interest}。請幫我用 ${tone} 風格撰寫溫馨口語化的婚禮邀請。婚禮由 ${groom} 與 ${bride} 於 ${date} 在 ${place} 舉辦。幫我把文字塞進我的底圖裡面，不要跑版`;
 
       try {
         const reply = await model.generateContent(customTone);
