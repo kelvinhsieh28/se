@@ -288,22 +288,21 @@ app.post("/api/batch-generate-invitations", async (req, res) => {
     const results = [];
 
     for (const guest of guests) {
-      const customTone = `${guest.name} 是我親愛的 ${guest.relation}，他喜歡 ${guest.interest}。請幫我用 ${tone} 風格撰寫溫馨口語化的婚禮邀請，婚禮邀請內容，語氣自然、溫馨、有情感，像是在對朋友說話。婚禮由 ${groom} 與 ${bride} 於 ${date} 在 ${place} 舉辦。*  請記得替換 `[賓客姓名]` 為實際賓客姓名。`;
+      const customTone = `${guest.name} 是我親愛的 ${guest.relation}，他喜歡 ${guest.interest}。請幫我用 ${tone} 風格撰寫溫馨口語化的婚禮邀請，婚禮由 ${groom} 與 ${bride} 於 ${date} 在 ${place} 舉辦。*  請記得替換 \`[賓客姓名]\` 為實際賓客姓名。`;
 
       try {
         const reply = await model.generateContent(customTone);
         const text = reply.response.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ 生成失敗";
-
-        results.push({ guest_id: guest.guest_id, invitation_text: text });
+        results.push({ guest_id: guest.guest_id, name: guest.name, relation: guest.relation, invitation_text: text });
       } catch (err) {
         console.error("❌ 生成錯誤：", err);
-        results.push({ guest_id: guest.guest_id, invitation_text: "⚠️ 生成失敗" });
+        results.push({ guest_id: guest.guest_id, name: guest.name, relation: guest.relation, invitation_text: "⚠️ 生成失敗" });
       }
     }
 
     res.json(results);
   });
-});
+  });
 
 app.post('/send-invitations', async (req, res) => {
   const { sender, subject, sendTime } = req.body;
