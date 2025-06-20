@@ -64,23 +64,24 @@
     <div id="guest-buttons" class="guest-buttons"></div>
 
     <script>
-      async function generateInvite() {
-        const groom = document.getElementById("groom").value;
-        const bride = document.getElementById("bride").value;
-        const date = document.getElementById("date").value;
-        const place = document.getElementById("place").value;
-        const tone = document.getElementById("tone").value;
+async function generateInvite() {
+  const groom = document.getElementById("groom").value;
+  const bride = document.getElementById("bride").value;
+  const date = document.getElementById("date").value;
+  const place = document.getElementById("place").value;
+  const tone = document.getElementById("tone").value;
 
-        const res = await fetch("/api/generate-invitation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ groom, bride, date, place, tone })
-        });
+  const response = await fetch("/generate-wedding", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ groom, bride, date, place, tone })
+  });
 
-        const data = await res.json();
-        const result = data.invitation || "⚠️ 發生錯誤，請稍後再試。";
-        document.getElementById("invitation-text").innerText = result;
-      }
+  const data = await response.json();
+  const result = data.reply || "⚠️ 發生錯誤，請稍後再試。";
+  document.getElementById("invitation-text").innerText = result;
+}
+
 
       function updateTemplateImage() {
         const selected = document.getElementById('tone').value;
