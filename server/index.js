@@ -288,7 +288,10 @@ app.post("/api/batch-generate-invitations", async (req, res) => {
     const results = [];
 
     for (const guest of guests) {
-      const customTone = `${guest.name} 是我親愛的 ${guest.relation}，他喜歡 ${guest.interest}。請幫我用 ${tone} 風格撰寫溫馨口語化的婚禮邀請。婚禮由 ${groom} 與 ${bride} 於 ${date} 在 ${place} 舉辦。幫我把文字塞進我的底圖裡面，不要跑版`;
+      const customTone = `${guest.name} 是我親愛的 ${guest.relation}，他喜歡 ${guest.interest}。請幫我用 ${tone} 風格撰寫溫馨口語化的婚禮邀請，婚禮邀請內容，語氣自然、溫馨、有情感，像是在對朋友說話。婚禮由 ${groom} 與 ${bride} 於 ${date} 在 ${place} 舉辦。*  請記得替換 `[賓客姓名]` 為實際賓客姓名。
+*  選擇合適的字體，例如優雅的襯線體或簡潔的無襯線體。
+*  調整字體大小和行距，確保所有文字都能清晰可見且不超出底圖範圍。
+*  可以考慮添加一個小小的婚禮圖示或裝飾`;
 
       try {
         const reply = await model.generateContent(customTone);

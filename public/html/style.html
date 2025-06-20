@@ -77,7 +77,7 @@
     <div id="card-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; padding: 1rem;"></div>
   </div>
 
- <script>
+  <script>
     async function generateInvite() {
       const groom = document.getElementById("groom").value;
       const bride = document.getElementById("bride").value;
@@ -93,6 +93,22 @@
 
       const data = await response.json();
       document.getElementById("invitation-text").innerText = data.reply || "⚠️ 發生錯誤，請稍後再試。";
+    }
+
+    function updateTemplateImage() {
+      const selected = document.getElementById('tone').value;
+      const img = document.getElementById('template-preview-img');
+
+      let imgSrc = '';
+      switch (selected) {
+        case '簡約浪漫風': imgSrc = '../pic/card01.jpg'; break;
+        case '綠意信箋': imgSrc = '../pic/card02.jpg'; break;
+        case '喜悅滿堂': imgSrc = '../pic/card03.jpg'; break;
+        default: imgSrc = '';
+      }
+
+      img.src = imgSrc;
+      img.style.display = imgSrc ? 'block' : 'none';
     }
 
     async function generateBatch() {
@@ -113,9 +129,6 @@
       });
 
       const guests = await res.json();
-      const previewArea = document.getElementById("previewArea");
-      previewArea.innerHTML = "<h3>📸 批量喜帖預覽</h3>";
-
       for (let i = 0; i < guests.length; i++) {
         const guest = guests[i];
         document.getElementById("invitation-text").innerText = guest.invitation_text;
@@ -123,33 +136,13 @@
         await html2canvas(document.getElementById("invitation-card"), {
           scale: 0.6
         }).then(async canvas => {
-          const imageData = canvas.toDataURL("image/jpeg", 0.8);
+          const image = canvas.toDataURL("image/jpeg", 0.8);
 
           await fetch("https://wedding-api-mwk3.onrender.com/api/save-invitation-image", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ guestId: guest.guest_id, image: imageData })
+            body: JSON.stringify({ guestId: guest.guest_id, image })
           });
-
-          const img = document.createElement("img");
-          img.src = imageData;
-          img.style.width = "300px";
-          img.style.border = "1px solid #ccc";
-          img.style.margin = "10px";
-
-          const label = document.createElement("div");
-          label.textContent = `🎀 ${guest.name}`;
-          label.style.marginBottom = "6px";
-          label.style.fontWeight = "bold";
-
-          const container = document.createElement("div");
-          container.style.display = "inline-block";
-          container.style.textAlign = "center";
-          container.style.margin = "10px";
-          container.appendChild(label);
-          container.appendChild(img);
-
-          previewArea.appendChild(container);
         });
 
         const percent = Math.round(((i + 1) / guests.length) * 100);
@@ -158,28 +151,42 @@
 
       loadingEl.innerText = "✅ 批量完成！";
       setTimeout(() => loadingEl.style.display = "none", 1500);
+      await loadGuestImages();
+    }
+
+    async function loadGuestImages() {
+      const res = await fetch("https://wedding-api-mwk3.onrender.com/api/guests");
+      const { data } = await res.json();
+
+      const grid = document.getElementById("card-grid");
+      grid.innerHTML = "";
+
+      data.forEach(guest => {
+        if (!guest.image) return;
+
+        const card = document.createElement("div");
+        card.style.background = "#fff";
+        card.style.borderRadius = "12px";
+        card.style.boxShadow = "0 4px 8px rgba(0,0,0,0.1)";
+        card.style.padding = "1rem";
+        card.style.textAlign = "center";
+
+        card.innerHTML = `
+          <h4>${guest.name}</h4>
+          <p>關係：${guest.relation}</p>
+          <img src="${guest.image}" alt="喜帖圖片" style="max-width: 100%; border-radius: 8px; margin-top: 1rem;" />
+        `;
+        grid.appendChild(card);
+      });
     }
 
     document.getElementById('tone').addEventListener('change', updateTemplateImage);
     document.getElementById('batch-generate-btn').addEventListener('click', generateBatch);
-
-    function updateTemplateImage() {
-      const selected = document.getElementById('tone').value;
-      const img = document.getElementById('template-preview-img');
-
-      let imgSrc = '';
-      switch (selected) {
-        case '簡約浪漫風': imgSrc = '../pic/card01.jpg'; break;
-        case '綠意信箋': imgSrc = '../pic/card02.jpg'; break;
-        case '喜悅滿堂': imgSrc = '../pic/card03.jpg'; break;
-        default: imgSrc = '';
-      }
-
-      img.src = imgSrc;
-      img.style.display = imgSrc ? 'block' : 'none';
-    }
-
-    window.onload = updateTemplateImage;
+    
+    window.onload = () => {
+      updateTemplateImage();
+      loadGuestImages();
+    };
   </script>
 </body>
 </html>
