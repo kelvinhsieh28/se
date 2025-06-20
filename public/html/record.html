@@ -22,10 +22,10 @@
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${entry.name}</td>
-            <td>${entry.attendance}</td>
             <td>${entry.guests}</td>
-            <td>${entry.notes}</td>
             <td>${entry.contact}</td>
+            <td>${entry.notes}</td>
+            <td>${entry.attendance}</td>
             <td><button class="resend">重寄</button></td>
           `;
           tbody.appendChild(tr);
