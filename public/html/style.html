@@ -60,52 +60,43 @@
 
     <button type="button" id="batch-generate-btn">批量生產</button>
 
-    <h3>批量喜帖預覽</h3>
-    <div id="guest-buttons" class="guest-buttons"></div>
+    <h3>所有賓客喜帖圖片預覽</h3>
+    <div id="card-grid" style="
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      padding: 1rem;
+    "></div>
 
     <script>
-async function generateInvite() {
-  const groom = document.getElementById("groom").value;
-  const bride = document.getElementById("bride").value;
-  const date = document.getElementById("date").value;
-  const place = document.getElementById("place").value;
-  const tone = document.getElementById("tone").value;
+      async function loadGuestImages() {
+        const res = await fetch("/api/guests");
+        const { success, data } = await res.json();
+        if (!success) return alert("載入 guest 圖片失敗");
 
-  const response = await fetch("/generate-wedding", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ groom, bride, date, place, tone })
-  });
+        const grid = document.getElementById("card-grid");
+        grid.innerHTML = ""; // 清空舊內容
 
-  const data = await response.json();
-  const result = data.reply || "⚠️ 發生錯誤，請稍後再試。";
-  document.getElementById("invitation-text").innerText = result;
-}
+        data.forEach(guest => {
+          if (!guest.image) return;
 
+          const card = document.createElement("div");
+          card.style.background = "#fff";
+          card.style.borderRadius = "12px";
+          card.style.boxShadow = "0 4px 8px rgba(0,0,0,0.1)";
+          card.style.padding = "1rem";
+          card.style.textAlign = "center";
 
-      function updateTemplateImage() {
-        const selected = document.getElementById('tone').value;
-        const img = document.getElementById('template-preview-img');
-
-        let imgSrc = '';
-        switch (selected) {
-          case '簡約浪漫風':
-            imgSrc = '../pic/card01.jpg';
-            break;
-          case '綠意信箋':
-            imgSrc = '../pic/card02.jpg';
-            break;
-          case '喜悅滿堂':
-            imgSrc = '../pic/card03.jpg';
-            break;
-          default:
-            imgSrc = '';
-        }
-
-        img.src = imgSrc;
-        img.style.display = imgSrc ? 'block' : 'none';
+          card.innerHTML = `
+            <h4>${guest.name}</h4>
+            <p>關係：${guest.relation}</p>
+            <img src="${guest.image}" alt="喜帖圖片" style="max-width: 100%; border-radius: 8px; margin-top: 1rem;" />
+          `;
+          grid.appendChild(card);
+        });
       }
 
+      // 修改 generateBatch：完成後載入圖片預覽
       async function generateBatch() {
         const groom = document.getElementById("groom").value;
         const bride = document.getElementById("bride").value;
@@ -134,16 +125,18 @@ async function generateInvite() {
               });
             });
         }
+
         alert("✅ 已完成批量生成並儲存圖片到資料庫！");
+        await loadGuestImages(); // 👈 新增：重新載入圖片牆
       }
 
-      document.getElementById('tone').addEventListener('change', updateTemplateImage);
-      document.getElementById('batch-generate-btn').addEventListener('click', generateBatch);
-
+      // 初始化載入模板圖片 + 圖片牆
       window.onload = () => {
         updateTemplateImage();
+        loadGuestImages(); // 👈 新增：一開始就載入圖片牆
       }
     </script>
+
   </div>
 </body>
 </html>
