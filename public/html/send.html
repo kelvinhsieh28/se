@@ -64,6 +64,25 @@
       e.preventDefault();
       alert('批次寄送已排程/執行！');
     });
+
+    document.getElementById('send-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const sender = document.getElementById('sender').value;
+  const subject = document.getElementById('subject').value;
+  const option = document.getElementById('send-time-option').value;
+  const sendTime = option === 'schedule' ? document.getElementById('send-time').value : null;
+
+  const res = await fetch('/send-invitations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sender, subject, sendTime })
+  });
+
+  const result = await res.text();
+  alert(result);
+});
+
   </script>
 </body>
 </html>
