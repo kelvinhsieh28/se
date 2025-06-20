@@ -283,6 +283,7 @@ app.post("/api/save-invitation-image", (req, res) => {
   });
 });
 
+
 // ✅ 批次產生邀請文字（不儲存，只回傳給前端）
 app.post("/api/batch-generate-invitations", async (req, res) => {
   const { groom, bride, date, place, tone } = req.body;
@@ -313,6 +314,48 @@ app.post("/api/batch-generate-invitations", async (req, res) => {
     res.json(results);
   });
 });
+
+app.post('/send-invitations', async (req, res) => {
+  const { sender, subject, sendTime } = req.body;
+
+  // 取出 guest 清單
+  db.query("SELECT email, invitation_text FROM guest WHERE invitation_text IS NOT NULL", async (err, rows) => {
+    if (err) return res.status(500).send("資料庫錯誤");
+
+    for (const guest of rows) {
+      const delay = sendTime ? new Date(sendTime).getTime() - Date.now() : 0;
+
+      setTimeout(() => {
+        sendEmail(guest.email, subject, guest.invitation_text, sender);
+      }, Math.max(delay, 0)); // 最少為0，避免負數
+    }
+
+    res.send(sendTime ? "✅ 已排程寄送" : "✅ 已立即寄送");
+  });
+});
+
+function sendEmail(to, subject, content, senderName) {
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
+    }
+  });
+
+  const mailOptions = {
+    from: `"${senderName}" <${process.env.MAIL_USER}>`,
+    to: to,
+    subject: subject,
+    html: `<div style="font-family:Arial,sans-serif;">${content}</div>`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) console.error(`❌ ${to} 寄送失敗:`, error);
+    else console.log(`✅ 寄給 ${to} 成功: ${info.response}`);
+  });
+}
+
 
 
 // ✅ 啟動伺服器
