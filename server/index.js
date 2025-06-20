@@ -313,31 +313,7 @@ app.post("/api/batch-generate-invitations", async (req, res) => {
   });
   });
 
-  // 封裝寄信函式
-function sendEmail(to, subject, imageData, senderName) {
-  const htmlContent = `
-    <p>親愛的賓客您好，</p>
-    <p>這是由 ${senderName} 發送的婚禮邀請函：</p>
-    <img src="${imageData}" style="max-width: 100%; border-radius: 8px;" />
-    <p>我們誠摯邀請您撥冗出席！</p>
-  `;
-
-  const mailOptions = {
-    from: `"${senderName}" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    html: htmlContent,
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return console.error("❌ 郵件寄送失敗：", error);
-    }
-    console.log("✅ 郵件已寄出：", info.response);
-  });
-}
-
-// ✅ 更新後的發信函式：改成發送圖片
+// ✅ 正確版本：封裝寄送喜帖 Email（含圖片與 Gmail 認證）
 function sendEmail(to, subject, imageDataUrl, senderName) {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -361,10 +337,14 @@ function sendEmail(to, subject, imageDataUrl, senderName) {
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
-    if (error) console.error(`❌ ${to} 寄送失敗:`, error);
-    else console.log(`✅ 寄給 ${to} 成功: ${info.response}`);
+    if (error) {
+      console.error(`❌ 寄送失敗給 ${to}：`, error);
+    } else {
+      console.log(`✅ 已成功寄給 ${to}：`, info.response);
+    }
   });
 }
+
 
 app.post('/send-invitations', async (req, res) => {
   const { sender, subject, sendTime } = req.body;
