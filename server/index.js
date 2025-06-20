@@ -9,6 +9,7 @@ import mysql from "mysql2";
 import multer from "multer";
 import csv from "csv-parser";
 import fs from "fs";
+import nodemailer from "nodemailer";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -33,6 +34,14 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+});
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
 });
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -304,26 +313,32 @@ app.post("/api/batch-generate-invitations", async (req, res) => {
   });
   });
 
-app.post('/send-invitations', async (req, res) => {
-  const { sender, subject, sendTime } = req.body;
+  // 封裝寄信函式
+function sendEmail(to, subject, imageData, senderName) {
+  const htmlContent = `
+    <p>親愛的賓客您好，</p>
+    <p>這是由 ${senderName} 發送的婚禮邀請函：</p>
+    <img src="${imageData}" style="max-width: 100%; border-radius: 8px;" />
+    <p>我們誠摯邀請您撥冗出席！</p>
+  `;
 
-  // 取出 guest 清單
-  db.query("SELECT email, invitation_text FROM guest WHERE invitation_text IS NOT NULL", async (err, rows) => {
-    if (err) return res.status(500).send("資料庫錯誤");
+  const mailOptions = {
+    from: `"${senderName}" <${process.env.EMAIL_USER}>`,
+    to,
+    subject,
+    html: htmlContent,
+  };
 
-    for (const guest of rows) {
-      const delay = sendTime ? new Date(sendTime).getTime() - Date.now() : 0;
-
-      setTimeout(() => {
-        sendEmail(guest.email, subject, guest.invitation_text, sender);
-      }, Math.max(delay, 0)); // 最少為0，避免負數
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.error("❌ 郵件寄送失敗：", error);
     }
-
-    res.send(sendTime ? "✅ 已排程寄送" : "✅ 已立即寄送");
+    console.log("✅ 郵件已寄出：", info.response);
   });
-});
+}
 
-function sendEmail(to, subject, content, senderName) {
+// ✅ 更新後的發信函式：改成發送圖片
+function sendEmail(to, subject, imageDataUrl, senderName) {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -336,7 +351,13 @@ function sendEmail(to, subject, content, senderName) {
     from: `"${senderName}" <${process.env.MAIL_USER}>`,
     to: to,
     subject: subject,
-    html: `<div style="font-family:Arial,sans-serif;">${content}</div>`
+    html: `
+      <div style="font-family:Arial,sans-serif;text-align:center;">
+        <p style="margin-bottom: 1rem;">親愛的賓客您好，請查看以下喜帖：</p>
+        <img src="${imageDataUrl}" alt="婚禮邀請喜帖" style="max-width:100%; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);" />
+        <p style="margin-top: 1rem;">期待您蒞臨 ❤️</p>
+      </div>
+    `
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -344,6 +365,48 @@ function sendEmail(to, subject, content, senderName) {
     else console.log(`✅ 寄給 ${to} 成功: ${info.response}`);
   });
 }
+
+app.post('/send-invitations', async (req, res) => {
+  const { sender, subject, sendTime } = req.body;
+
+  db.query("SELECT email, image FROM guest WHERE image IS NOT NULL", async (err, guests) => {
+    if (err) return res.status(500).send("資料庫錯誤");
+
+    for (const guest of guests) {
+      const delay = sendTime ? new Date(sendTime).getTime() - Date.now() : 0;
+      setTimeout(() => {
+        sendEmail(guest.email, subject, guest.image, sender);
+      }, Math.max(delay, 0));
+    }
+
+    res.send(sendTime ? "✅ 已排程寄送" : "✅ 已立即寄送");
+  });
+});
+
+// ✅ 單一測試寄送喜帖圖片
+app.post("/api/send-test-email", (req, res) => {
+  const { email, sender, subject } = req.body;
+  if (!email || !sender || !subject) {
+    return res.status(400).json({ success: false, message: "缺少必要欄位" });
+  }
+
+  // 從 guest 表中找出最後一筆有圖片的
+  const sql = "SELECT image FROM guest WHERE image IS NOT NULL ORDER BY guest_id DESC LIMIT 1";
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ 測試查詢錯誤：", err);
+      return res.status(500).json({ success: false, message: "資料庫錯誤" });
+    }
+
+    if (results.length === 0) {
+      return res.status(400).json({ success: false, message: "沒有可寄送的喜帖圖片" });
+    }
+
+    const image = results[0].image;
+    sendEmail(email, subject, image, sender);
+    res.json({ success: true, message: `已寄出測試喜帖至 ${email}` });
+  });
+});
 
 
 

@@ -1,82 +1,99 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>發送設定</title>
-  <link rel="stylesheet" href="../css/send.css" />
-</head>
-<body>
-  <!-- 導覽列 -->
-  <nav class="navbar">
-    <div class="nav-logo"><img src="../pic/logo.png" alt="喜帖範例圖" width="55" /></div>
-    <ul class="nav-links" id="nav-links">
-      <li><a href="index.html">主頁</a></li>
-      <li><a href="guest.html">收件人管理</a></li>
-      <li><a href="style.html">喜帖設計</a></li>
-      <li><a href="send.html" class="active">發送設定</a></li>
-      <li><a href="record.html">寄送紀錄</a></li>
-      <li><a href="program_generator.html">婚禮節目表</a></li> 
-      <li><a href="venue.html">婚宴會館</a></li> 
-    </ul>
-  </nav>
+  <!DOCTYPE html>
+  <html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>發送設定</title>
+    <link rel="stylesheet" href="../css/send.css" />
+  </head>
+  <body>
+    <!-- 導覽列 -->
+    <nav class="navbar">
+      <div class="nav-logo"><img src="../pic/logo.png" alt="喜帖範例圖" width="55" /></div>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">主頁</a></li>
+        <li><a href="guest.html">收件人管理</a></li>
+        <li><a href="style.html">喜帖設計</a></li>
+        <li><a href="send.html" class="active">發送設定</a></li>
+        <li><a href="record.html">寄送紀錄</a></li>
+        <li><a href="program_generator.html">婚禮節目表</a></li> 
+        <li><a href="venue.html">婚宴會館</a></li> 
+      </ul>
+    </nav>
 
-  <div class="send-container">
-    <h2>發送日期設定</h2>
+    <div class="send-container">
+      <h2>發送日期設定</h2>
 
-    <form id="send-form">
-      <label for="sender">寄件人名稱</label>
-      <input type="text" id="sender" value="小明與小美的婚禮" required />
+      <form id="send-form">
+        <label for="sender">寄件人名稱</label>
+        <input type="text" id="sender" value="小明與小美的婚禮" required />
 
-      <label for="subject">信件主旨</label>
-      <input type="text" id="subject" value="誠摯邀請您來參加我們的婚禮" required />
+        <label for="subject">信件主旨</label>
+        <input type="text" id="subject" value="誠摯邀請您來參加我們的婚禮" required />
 
-      <label for="send-time-option">寄送時間</label>
-      <select id="send-time-option" onchange="toggleDateTime()">
-        <option value="now">立即寄送</option>
-        <option value="schedule">預約寄送</option>
-      </select>
+        <label for="send-time-option">寄送時間</label>
+        <select id="send-time-option" onchange="toggleDateTime()">
+          <option value="now">立即寄送</option>
+          <option value="schedule">預約寄送</option>
+        </select>
 
-      <div id="datetime-field" style="display: none;">
-        <label for="send-time">選擇日期與時間</label>
-        <input type="datetime-local" id="send-time" />
-      </div>
+        <div id="datetime-field" style="display: none;">
+          <label for="send-time">選擇日期與時間</label>
+          <input type="datetime-local" id="send-time" />
+        </div>
 
-      <div class="button-group">
-        <button type="button" onclick="testSend()">測試寄送</button>
-        <button type="submit">寄送</button>
-      </div>
-    </form>
-  </div>
+        <div class="button-group">
+          <button type="button" onclick="testSend()">測試寄送</button>
+          <button type="submit">寄送</button>
+        </div>
+      </form>
+    </div>
 
-  <script>
-    function toggleDateTime() {
-      const option = document.getElementById('send-time-option').value;
-      const datetime = document.getElementById('datetime-field');
-      datetime.style.display = option === 'schedule' ? 'block' : 'none';
-    }
+    <script>
+      function toggleDateTime() {
+        const option = document.getElementById('send-time-option').value;
+        const datetime = document.getElementById('datetime-field');
+        datetime.style.display = option === 'schedule' ? 'block' : 'none';
+      }
 
-    function testSend() {
-      alert('📨 測試寄送功能尚未連接後端！如需實作請告知我幫你加上。');
-    }
+      async function testSend() {
+  const testEmail = prompt("請輸入欲測試的 Email 地址：");
+  if (!testEmail || !testEmail.includes("@")) {
+    alert("❌ Email 格式不正確");
+    return;
+  }
 
-    document.getElementById('send-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
+  const sender = document.getElementById("sender").value;
+  const subject = document.getElementById("subject").value;
 
-      const sender = document.getElementById('sender').value;
-      const subject = document.getElementById('subject').value;
-      const option = document.getElementById('send-time-option').value;
-      const sendTime = option === 'schedule' ? document.getElementById('send-time').value : null;
+  const res = await fetch("/api/send-test-email", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: testEmail, sender, subject })
+  });
 
-      const res = await fetch('/send-invitations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender, subject, sendTime })
+  const data = await res.json();
+  alert(data.message);
+}
+
+
+      document.getElementById('send-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const sender = document.getElementById('sender').value;
+        const subject = document.getElementById('subject').value;
+        const option = document.getElementById('send-time-option').value;
+        const sendTime = option === 'schedule' ? document.getElementById('send-time').value : null;
+
+        const res = await fetch('/send-invitations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sender, subject, sendTime })
+        });
+
+        const result = await res.text();
+        alert(result);
       });
-
-      const result = await res.text();
-      alert(result);
-    });
-  </script>
-</body>
-</html>
+    </script>
+  </body>
+  </html>
