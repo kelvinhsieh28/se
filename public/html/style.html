@@ -127,25 +127,36 @@
       const place = document.getElementById("place").value;
       const tone = document.getElementById("tone").value;
 
-      const response = await fetch("https://wedding-api-mwk3.onrender.com/generate-wedding", {
+      const response = await fetch("/generate-wedding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ groom, bride, date, place, tone })
       });
 
       const data = await response.json();
-      document.getElementById("invitation-text").innerText = data.reply || "⚠️ 發生錯誤，請稍後再試。";
+      const result = data.reply || "⚠️ 發生錯誤，請稍後再試。";
+      document.getElementById("invitation-text").innerText = result;
     }
 
     function updateTemplateImage() {
       const selected = document.getElementById('tone').value;
       const img = document.getElementById('template-preview-img');
+
       let imgSrc = '';
       switch (selected) {
-        case '簡約浪漫風': imgSrc = '../pic/card01.jpg'; break;
-        case '綠意信箋': imgSrc = '../pic/card02.jpg'; break;
-        case '喜悅滿堂': imgSrc = '../pic/card03.jpg'; break;
+        case '簡約浪漫風':
+          imgSrc = '../pic/card01.jpg';
+          break;
+        case '綠意信箋':
+          imgSrc = '../pic/card02.jpg';
+          break;
+        case '喜悅滿堂':
+          imgSrc = '../pic/card03.jpg';
+          break;
+        default:
+          imgSrc = '';
       }
+
       img.src = imgSrc;
       img.style.display = imgSrc ? 'block' : 'none';
     }
